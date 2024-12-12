@@ -9,18 +9,6 @@ if(PROJECT_IS_TOP_LEVEL)
   option(BUILD_SHARED_LIBS "Build shared libs." OFF)
 endif()
 
-# ---- Suppress C4251 on Windows ----
-
-# Please see include/Renderer/Renderer.hpp for more details
-set(pragma_suppress_c4251 "
-/* This needs to suppress only for MSVC */
-#if defined(_MSC_VER) && !defined(__ICL)
-#  define RENDERER_SUPPRESS_C4251 _Pragma(\"warning(suppress:4251)\")
-#else
-#  define RENDERER_SUPPRESS_C4251
-#endif
-")
-
 # ---- Warning guard ----
 
 # target_include_directories with the SYSTEM modifier will request the compiler

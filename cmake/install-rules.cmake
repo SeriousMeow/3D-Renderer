@@ -15,7 +15,6 @@ set(package Renderer)
 install(
     DIRECTORY
     include/
-    "${PROJECT_BINARY_DIR}/export/"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
     COMPONENT Renderer_Development
 )
@@ -23,11 +22,6 @@ install(
 install(
     TARGETS Renderer_Renderer
     EXPORT RendererTargets
-    RUNTIME #
-    COMPONENT Renderer_Runtime
-    LIBRARY #
-    COMPONENT Renderer_Runtime
-    NAMELINK_COMPONENT Renderer_Development
     ARCHIVE #
     COMPONENT Renderer_Development
     INCLUDES #

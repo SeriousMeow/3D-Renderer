@@ -13,30 +13,17 @@ project(
 include(cmake/project-is-top-level.cmake)
 include(cmake/variables.cmake)
 
+add_subdirectory(source)
+
 # ---- Declare library ----
 
-add_library(
-    Renderer_Renderer
-    source/Renderer.cpp
-)
+add_library(Renderer_Renderer)
 add_library(Renderer::Renderer ALIAS Renderer_Renderer)
 
-include(GenerateExportHeader)
-generate_export_header(
-    Renderer_Renderer
-    BASE_NAME Renderer
-    EXPORT_FILE_NAME export/Renderer/Renderer_export.hpp
-    CUSTOM_CONTENT_FROM_VARIABLE pragma_suppress_c4251
-)
-
-if(NOT BUILD_SHARED_LIBS)
-  target_compile_definitions(Renderer_Renderer PUBLIC RENDERER_STATIC_DEFINE)
-endif()
+target_compile_definitions(Renderer_Renderer PUBLIC RENDERER_STATIC_DEFINE)
 
 set_target_properties(
     Renderer_Renderer PROPERTIES
-    CXX_VISIBILITY_PRESET hidden
-    VISIBILITY_INLINES_HIDDEN YES
     VERSION "${PROJECT_VERSION}"
     SOVERSION "${PROJECT_VERSION_MAJOR}"
     EXPORT_NAME Renderer
@@ -47,12 +34,6 @@ target_include_directories(
     Renderer_Renderer ${warning_guard}
     PUBLIC
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-)
-
-target_include_directories(
-    Renderer_Renderer SYSTEM
-    PUBLIC
-    "\$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/export>"
 )
 
 target_compile_features(Renderer_Renderer PUBLIC cxx_std_20)
