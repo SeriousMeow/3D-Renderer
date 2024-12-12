@@ -13,7 +13,8 @@ project(
 include(cmake/project-is-top-level.cmake)
 include(cmake/variables.cmake)
 
-add_subdirectory(source)
+include(cmake/external_libs.cmake)
+
 
 # ---- Declare library ----
 
@@ -36,7 +37,13 @@ target_include_directories(
     "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
 )
 
+target_include_directories(Renderer_Renderer PRIVATE ${glm_SOURCE_DIR})
+
 target_compile_features(Renderer_Renderer PUBLIC cxx_std_20)
+
+# ---- Add sources
+
+add_subdirectory(source)
 
 # ---- Install rules ----
 
