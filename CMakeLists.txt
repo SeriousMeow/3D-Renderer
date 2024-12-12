@@ -60,6 +60,10 @@ if(PROJECT_IS_TOP_LEVEL)
   endif()
 endif()
 
+# ---- Docs ----
+
+include(cmake/docs.cmake)
+
 # ---- Developer mode ----
 
 if(NOT Renderer_DEVELOPER_MODE)
