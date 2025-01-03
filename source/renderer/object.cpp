@@ -1,4 +1,4 @@
-#include <renderer/object/object.hpp>
+#include <renderer/object.hpp>
 
 renderer::Object::Iterator renderer::Object::Begin() {
     return triangles_.begin();
