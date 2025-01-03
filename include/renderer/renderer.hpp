@@ -3,7 +3,8 @@
  * @brief Подключение всех заголовочных файлов библиотеки Renderer
  */
 
-#include "renderer/data_structures/primitives.hpp"
+#include "renderer/object.hpp"
+#include "renderer/primitives.hpp"
 
 /**
  * @namespace

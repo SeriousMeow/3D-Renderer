@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "renderer/data_structures/primitives.hpp"
+#include "renderer/primitives.hpp"
 
 namespace renderer {
 
