@@ -10,11 +10,17 @@
 
 namespace renderer {
 
+/*
+ * @brief Хранит объекты и их положение в пространстве
+ */
 class Scene {
 public:
+    /*
+     * @brief Объект с матрицей трансформации в сцене
+     */
     struct SceneObject {
         Object object;
-        TransformMatrix scene_transform_matrix;
+        TransformMatrix object_to_scene_matrix;
     };
 
     using Iterator = std::vector<SceneObject>::iterator;
