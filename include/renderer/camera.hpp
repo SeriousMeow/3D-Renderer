@@ -14,6 +14,9 @@ namespace renderer {
  */
 class Camera {
 public:
+    /**
+     * @brief Указатель на объект с матрицей перехода из пространства объекта в пространство камеры
+     */
     struct CameraObject {
         Object* object_ptr;
         TransformMatrix object_to_camera_matrix;
