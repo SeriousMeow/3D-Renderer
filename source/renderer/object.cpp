@@ -1,5 +1,8 @@
 #include <renderer/object.hpp>
 
+renderer::Object::Object(const std::vector<Triangle>& triangles) : triangles_{triangles} {
+}
+
 renderer::Object::Iterator renderer::Object::Begin() {
     return triangles_.begin();
 }

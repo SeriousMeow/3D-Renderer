@@ -12,17 +12,46 @@
 namespace renderer {
 
 /**
- * @brief 3D объект - контейнер для графических примитивов
+ * @brief Контейнер для графических примитивов - трекгольников
  */
 class Object {
 public:
     using Iterator = std::vector<Triangle>::iterator;
     using ConstIterator = std::vector<Triangle>::const_iterator;
 
+    /**
+     * @brief Конструктор из треугольников
+     *
+     * @param[in] triangles треугольники
+     */
+    explicit Object(const std::vector<Triangle>& triangles);
+
+    /**
+     * @brief Итератор начала контейнера
+     *
+     * return Итератор начала контейнера
+     */
     Iterator Begin();
+
+    /**
+     * @brief Итератор конца контейнера
+     *
+     * return Итератор конца контейнера
+     */
     Iterator End();
 
+    /**
+     * @brief Итератор начала контейнера
+     *
+     * return Итератор начала контейнера
+     */
     ConstIterator Begin() const;
+
+    /**
+     * @brief Итератор конца контейнера
+     *
+     * return Итератор конца контейнера
+     */
     ConstIterator End() const;
 
 private:
