@@ -1,5 +1,12 @@
 #include "renderer/scene.hpp"
 
+renderer::Scene::Scene(const std::vector<SceneObject>& objects) : objects_{objects} {
+}
+
+void renderer::Scene::Push(const Object& object, const TransformMatrix& matrix) {
+    objects_.push_back({.object = object, .object_to_scene_matrix = matrix});
+}
+
 renderer::Scene::Iterator renderer::Scene::Begin() {
     return objects_.begin();
 }
