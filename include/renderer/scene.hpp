@@ -29,6 +29,11 @@ public:
     using ConstIterator = std::vector<SceneObject>::const_iterator;
 
     /**
+     * @brief Создание пустой сцены
+     */
+    Scene() = default;
+
+    /**
      * @brief Создание сцены из объектов и матриц
      *
      * @param[in] objects Объекты
