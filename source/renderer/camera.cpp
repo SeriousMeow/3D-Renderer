@@ -9,7 +9,7 @@ CameraIterator::Iterator(CameraIterator::Pointer ptr, TransformMatrix transform)
 CameraIterator::ValueType CameraIterator::operator*() {
     return renderer::Camera::CameraObject{
         .object_ptr = &(object_->object),
-        .object_to_camera_matrix = object_->object_to_scene_matrix * tranform_};
+        .object_to_camera_matrix = tranform_ * object_->object_to_scene_matrix};
 }
 
 CameraIterator& CameraIterator::operator++() {

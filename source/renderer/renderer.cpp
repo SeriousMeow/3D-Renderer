@@ -1,5 +1,7 @@
 #include "renderer/renderer.hpp"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 renderer::Renderer::Renderer(renderer::Camera* camera) : camera_{camera} {
     assert(camera and "Renderer: camera не может быть nullptr");
 }
@@ -17,11 +19,11 @@ void renderer::Renderer::Render(renderer::Image& image) {
             assert((height_ != 0) and "Render: высота не может быть 0");
         }
     }
-    z_buffer_.assign(width_ * height_, -std::numeric_limits<float>::infinity());
+    z_buffer_.assign(width_ * height_, std::numeric_limits<float>::infinity());
     for (Camera::Iterator object_camera_space_it = camera_->Begin();
          object_camera_space_it != camera_->End(); ++object_camera_space_it) {
         TransformMatrix object_to_clip_space_matrix =
-            (*object_camera_space_it).object_to_camera_matrix * camera_to_clip_matrix_;
+            camera_to_clip_matrix_ * (*object_camera_space_it).object_to_camera_matrix;
 
         Object* object_ptr = (*object_camera_space_it).object_ptr;
         assert(object_ptr and "Renderer: получен nullptr указатель на object от camera");
@@ -82,7 +84,7 @@ void renderer::Renderer::DrawLine(Image& image, const Point& start, const Point&
         if (screen_y < 0 or screen_y >= height_) {
             continue;
         }
-        if (z_buffer_[screen_y * width_ + screen_x] > z) {
+        if (z_buffer_[screen_y * width_ + screen_x] < z) {
             continue;
         }
         z_buffer_[screen_y * width_ + screen_x] = z;
@@ -101,17 +103,6 @@ void renderer::Renderer::Init(const size_t width, const size_t height,
     x_scale_factor_ = scale_factor;
     y_scale_factor_ = aspect_ratio * scale_factor;
 
-    const float left_bound = -x_scale_factor_;
-    const float right_bound = x_scale_factor_;
-    const float top_bound = y_scale_factor_;
-    const float bottom_bound = -x_scale_factor_;
-
-    camera_to_clip_matrix_ = TransformMatrix{
-        {(2 * near_plane_distance) / (right_bound - left_bound), 0.0,
-         (right_bound + left_bound) / (right_bound - left_bound), 0.0},
-        {0.0, (2 * near_plane_distance) / (top_bound - bottom_bound),
-         (top_bound + bottom_bound) / (top_bound - bottom_bound), 0.0},
-        {0.0, 0.0, -1.0, -2 * near_plane_distance},
-        {0.0, 0.0, -1.0, 0.0},
-    };
+    camera_to_clip_matrix_ =
+        glm::infinitePerspective(glm::radians(fov), aspect_ratio, near_plane_distance);
 }
