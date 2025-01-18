@@ -30,6 +30,8 @@ namespace utils {
  * - Грань задается ровно 3 числами - номерами вершин
  *
  * @param[in] path Путь до файла
+ *
+ * return Объект, загруженный из файла
  */
 Object LoadObjFile(const std::string& path);
 

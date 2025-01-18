@@ -31,10 +31,10 @@ public:
      * @param[in] width Ширина выходного изображения, должна быть больше 0
      * @param[in] height Высота выходного изображения, должна быть больше 0
      * @param[in] near_plane_distance Расстояние от камеры до экрана, должно быть больше 0.0
-     * @param[in] fov Поле зрения, должно быть больше 0.0 и меньше 360.0
+     * @param[in] fov_x Горизонтальное поле зрения в градусах, должно быть больше 0.0 и меньше 360.0
      */
     void Init(const size_t width, const size_t height, const float near_plane_distance = 1.0,
-              const float fov = 90.0);
+              const float fov_x = 90.0);
 
     /**
      * @brief Рендеринг камеры в изображение
