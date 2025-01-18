@@ -62,7 +62,7 @@ private:
     size_t height_{0};
     float x_scale_factor_;
     float y_scale_factor_;
-    TransformMatrix camera_to_clip_matrix_;
+    TransformMatrix camera_to_clip_;
 };
 
 };  // namespace renderer

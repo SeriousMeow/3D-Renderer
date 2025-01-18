@@ -51,24 +51,16 @@ void renderer::Renderer::Render(renderer::Image& image) {
             if (glm::dot(triangle_normal, camera_direction) < 0.0f) {
                 continue;
             }
-            Point new_vertices[3];
             for (size_t i = 0; i < 3; ++i) {
-                new_vertices[i] = camera_to_clip_matrix_ * triangle.vertices[i];
-                assert((std::abs(new_vertices[i].w) > 1e-5) and
-                       "Renderer: точка для отрисовки имеет слишком малую координату w");
-                new_vertices[i] /= new_vertices[i].w;
+                triangle.vertices[i] = camera_to_clip_ * triangle.vertices[i];
+                assert(
+                    (glm::epsilonNotEqual(triangle.vertices[i].w, 0.0f, glm::epsilon<float>())) and
+                    "Renderer: точка для отрисовки имеет координату w, равную 0.0");
+                triangle.vertices[i] /= triangle.vertices[i].w;
             }
-            DrawLine(image, new_vertices[0], new_vertices[1]);
-            DrawLine(image, new_vertices[1], new_vertices[2]);
-            DrawLine(image, new_vertices[2], new_vertices[0]);
-
-            Point triangle_normal_start = triangle_center;
-            Point triangle_normal_end = triangle_center + glm::vec4{triangle_normal, 0};
-            Point triangle_normal_start_new = camera_to_clip_matrix_ * triangle_normal_start;
-            triangle_normal_start_new /= triangle_normal_start_new.w;
-            Point triangle_normal_end_new = camera_to_clip_matrix_ * triangle_normal_end;
-            triangle_normal_end_new /= triangle_normal_end_new.w;
-            // DrawLine(image, triangle_normal_start_new, triangle_normal_end_new);
+            DrawLine(image, triangle.vertices[0], triangle.vertices[1]);
+            DrawLine(image, triangle.vertices[1], triangle.vertices[2]);
+            DrawLine(image, triangle.vertices[2], triangle.vertices[0]);
         }
     }
 }
@@ -132,5 +124,5 @@ void renderer::Renderer::Init(const size_t width, const size_t height,
     x_scale_factor_ = scale_factor;
     y_scale_factor_ = aspect_ratio / scale_factor;
 
-    camera_to_clip_matrix_ = glm::infinitePerspective(fov_y, aspect_ratio, near_plane_distance);
+    camera_to_clip_ = glm::infinitePerspective(fov_y, aspect_ratio, near_plane_distance);
 }
