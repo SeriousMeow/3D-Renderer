@@ -21,7 +21,6 @@ renderer::Object renderer::utils::LoadObjFile(const std::string& path) {
             char _;
             renderer::Point new_point;
             s >> _ >> new_point.x >> new_point.y >> new_point.z;
-            new_point.w = 1.0f;
             points.push_back(new_point);
         }
         if (line[0] == 'f') {
@@ -31,7 +30,7 @@ renderer::Object renderer::utils::LoadObjFile(const std::string& path) {
             s >> _;
             for (size_t i = 0; i < 3; ++i) {
                 s >> index;
-                new_triangle.vertices[i] = points[index - 1];
+                new_triangle.vertices[i].point = points[index - 1];
             }
             triangles.push_back(new_triangle);
         }

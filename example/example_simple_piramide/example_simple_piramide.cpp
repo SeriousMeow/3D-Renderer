@@ -4,10 +4,10 @@
 
 int main() {
     // Создаем точки
-    renderer::Point a = {0, 0, 0, 1};
-    renderer::Point b = {1, 0, 0, 1};
-    renderer::Point c = {0, 1, 0, 1};
-    renderer::Point d = {0, 0, 1, 1};
+    renderer::Point a = {0, 0, 0};
+    renderer::Point b = {1, 0, 0};
+    renderer::Point c = {0, 1, 0};
+    renderer::Point d = {0, 0, 1};
 
     // Создаем грани-треугольники из точек. Наружней считается та сторона, относительно которой
     // точки перечисленны против часовой стрелки
@@ -27,7 +27,7 @@ int main() {
 
     // Создаем камеру в точке (-1, -1, 1), смотрящую на точку (0.5, 0.5, 0.5)
     renderer::TransformMatrix camera_matrix =
-        renderer::transfroms::CameraLookAtPoint({-1, -1, 1, 1}, {0.5, 0.5, 0.5, 1});
+        renderer::transfroms::CameraLookAtPoint({-1, -1, 1}, {0.5, 0.5, 0.5});
     renderer::Camera camera{&scene, camera_matrix};
 
     // Создаем рендерер и инициализируем параметры

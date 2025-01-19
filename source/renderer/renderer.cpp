@@ -32,35 +32,38 @@ void renderer::Renderer::Render(renderer::Image& image) {
              ++triangle_it) {
 
             Triangle triangle = *triangle_it;
+            Point4 vertices[3];
             // нормализуем координаты и переводим в координаты камеры
             for (size_t i = 0; i < 3; ++i) {
-
-                assert(
-                    (glm::epsilonNotEqual(triangle.vertices[i].w, 0.0f, glm::epsilon<float>()) and
-                     "Renderer: точка в треугольнике имеет координату w, равную 0"));
-                triangle.vertices[i] = object_to_camera * triangle.vertices[i];
-                triangle.vertices[i] /= triangle.vertices[i].w;
+                vertices[i] = Point4{triangle.vertices[i].point, 1.0f};
+                vertices[i] = object_to_camera * vertices[i];
+                {
+                    assert((glm::epsilonNotEqual(vertices[i].w, 0.0f, glm::epsilon<float>())) and
+                           "Render: после умножения на матрицу перехода в пространство камеры "
+                           "координата w стала 0");
+                }
+                vertices[i] /= vertices[i].w;
             }
-            Point triangle_center =
-                (triangle.vertices[0] + triangle.vertices[1] + triangle.vertices[2]) / 3.0f;
-            glm::vec3 triangle_normal =
-                glm::cross(glm::vec3{triangle.vertices[1] - triangle.vertices[0]},
-                           glm::vec3{triangle.vertices[2] - triangle.vertices[0]});
-            triangle_normal = glm::normalize(triangle_normal);
-            glm::vec3 camera_direction = -glm::vec3{triangle_center};
+            // находим нормаль к грани
+            Point4 triangle_center = (vertices[0] + vertices[1] + vertices[2]) / 3.0f;
+            Vector triangle_normal =
+                glm::cross(Vector{vertices[1] - vertices[0]}, Vector{vertices[2] - vertices[0]});
+
+            // проверяем, что грань направлена в сторону камеры
+            Vector camera_direction = -Vector{triangle_center};
             if (glm::dot(triangle_normal, camera_direction) < 0.0f) {
                 continue;
             }
             for (size_t i = 0; i < 3; ++i) {
-                triangle.vertices[i] = camera_to_clip_ * triangle.vertices[i];
-                assert(
-                    (glm::epsilonNotEqual(triangle.vertices[i].w, 0.0f, glm::epsilon<float>())) and
-                    "Renderer: точка для отрисовки имеет координату w, равную 0.0");
-                triangle.vertices[i] /= triangle.vertices[i].w;
+                vertices[i] = camera_to_clip_ * vertices[i];
+                assert((glm::epsilonNotEqual(vertices[i].w, 0.0f, glm::epsilon<float>())) and
+                       "Renderer: после умножения на матрицу перхода в Clip пространство "
+                       "координата w стала 0");
+                vertices[i] /= vertices[i].w;
             }
-            DrawLine(image, triangle.vertices[0], triangle.vertices[1]);
-            DrawLine(image, triangle.vertices[1], triangle.vertices[2]);
-            DrawLine(image, triangle.vertices[2], triangle.vertices[0]);
+            DrawLine(image, Point{vertices[0]}, Point{vertices[1]});
+            DrawLine(image, Point{vertices[1]}, Point{vertices[2]});
+            DrawLine(image, Point{vertices[2]}, Point{vertices[0]});
         }
     }
 }
