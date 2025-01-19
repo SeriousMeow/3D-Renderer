@@ -23,11 +23,11 @@ int main() {
 
     // Создаем сцену и выставляем объект в начало координат
     renderer::Scene scene;
-    scene.Push(piramide, renderer::transfroms::kNoTransforms);
+    scene.Push(piramide, renderer::transforms::kNoTransforms);
 
     // Создаем камеру в точке (-1, -1, 1), смотрящую на точку (0.5, 0.5, 0.5)
     renderer::TransformMatrix camera_matrix =
-        renderer::transfroms::CameraLookAtPoint({-1, -1, 1}, {0.5, 0.5, 0.5});
+        renderer::transforms::CameraLookAtPoint({-1, -1, 1}, {0.5, 0.5, 0.5});
     renderer::Camera camera{&scene, camera_matrix};
 
     // Создаем рендерер и инициализируем параметры

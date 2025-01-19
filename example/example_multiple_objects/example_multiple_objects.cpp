@@ -12,20 +12,20 @@ int main() {
     // Добавляем несколько объектов
     //
     // Куб с центром (0, 0, 0)
-    scene.Push(cube, renderer::transfroms::kNoTransforms);
+    scene.Push(cube, renderer::transforms::kNoTransforms);
 
     // Куб с центром (2, 2, 0)
-    scene.Push(cube, renderer::transfroms::Translate(
+    scene.Push(cube, renderer::transforms::Translate(
                          {-2, -2, 0}));  // принимает матрицу преобразования из объекта в сцену,
                                          // поэтому противоположный вектор
 
     // Куб с центром (-2, -2, 0), повернутый на 45 градусов относительно вертикали
-    scene.Push(cube, renderer::transfroms::Translate({2, 2, 0}) *
-                         renderer::transfroms::RotateAboutAxisZ(45));
+    scene.Push(cube, renderer::transforms::Translate({2, 2, 0}) *
+                         renderer::transforms::RotateAboutAxisZ(45));
 
     // Создаем камеру в точке (3, -4, 2), смотрящую на точку (0, 0, 0)
     renderer::TransformMatrix camera_matrix =
-        renderer::transfroms::CameraLookAtPoint({3, -4, 2}, {0, 0, 0});
+        renderer::transforms::CameraLookAtPoint({3, -4, 2}, {0, 0, 0});
     renderer::Camera camera{&scene, camera_matrix};
 
     // Создаем рендерер и инициализируем параметры

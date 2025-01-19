@@ -28,7 +28,7 @@ public:
         using DifferenceType = std::ptrdiff_t;
 
         Iterator() = delete;
-        Iterator(Pointer ptr, TransformMatrix tranform);
+        Iterator(Pointer ptr, TransformMatrix transform);
         ValueType operator*();
         Iterator& operator++();
         Iterator operator++(int);

@@ -20,7 +20,7 @@ using TransformMatrix = glm::mat4;
  * Содержит методы, позволяющие создавать матрицы преобразований с нужными свойствами. Также
  * содержит методы обработки матриц преобразований и предпосчитанные матрицы
  */
-namespace transfroms {
+namespace transforms {
 /**
  * @brief Матрица, не выполняющая преобразований
  *
@@ -132,5 +132,5 @@ TransformMatrix CameraLookAtPoint(const Point& camera_position, const Point& cen
  */
 TransformMatrix CameraLookAtDirection(const Point& camera_position, const Vector& direction);
 
-};  // namespace transfroms
+};  // namespace transforms
 };  // namespace renderer
