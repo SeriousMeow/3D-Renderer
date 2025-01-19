@@ -34,9 +34,9 @@ int main() {
     for (size_t x = 0; x < width; ++x) {
         for (size_t y = 0; y < height; ++y) {
             bmp::Pixel* current_ouput_pixel = result_image.GetPixel(x, y);
-            current_ouput_pixel->r = image.GetImageReference()[x + width * y].r;
-            current_ouput_pixel->g = image.GetImageReference()[x + width * y].g;
-            current_ouput_pixel->b = image.GetImageReference()[x + width * y].b;
+            current_ouput_pixel->r = image.GetPixel(x, y).r;
+            current_ouput_pixel->g = image.GetPixel(x, y).g;
+            current_ouput_pixel->b = image.GetPixel(x, y).b;
         }
     }
     result_image.Save("example_load_obj.bmp");

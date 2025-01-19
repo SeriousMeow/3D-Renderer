@@ -50,11 +50,27 @@ public:
     size_t GetHeight() const;
 
     /**
-     * @brief Получение ссылки на массив изображения
+     * @brief Изменение пикселя
      *
-     * @return Ссылка на массив изображения
+     * Задает новое значение для пикселя с координатами (x, y)
+     *
+     * @param[in] x Столбец
+     * @param[in] y Строка
+     * @param[in] new_pixel Ноыое значение пикселя
      */
-    std::vector<Pixel>& GetImageReference();
+    void SetPixel(const size_t x, const size_t y, const Pixel& new_pixel);
+
+    /**
+     * @brief Получение пикселя
+     *
+     * Возвращает значение пикселя с координатами (x, y)
+     *
+     * @param[in] x Столбец
+     * @param[in] y Строка
+     *
+     * return Значения пикселя в позиции (x, y)
+     */
+    Pixel GetPixel(const size_t x, const size_t y);
 
 private:
     size_t width_;

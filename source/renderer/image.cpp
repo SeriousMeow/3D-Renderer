@@ -18,6 +18,11 @@ size_t renderer::Image::GetHeight() const {
     return height_;
 }
 
-std::vector<renderer::Image::Pixel>& renderer::Image::GetImageReference() {
-    return image_;
+void renderer::Image::SetPixel(const size_t x, const size_t y,
+                               const renderer::Image::Pixel& new_pixel) {
+    image_[x + y * width_] = new_pixel;
+}
+
+renderer::Image::Pixel renderer::Image::GetPixel(const size_t x, const size_t y) {
+    return image_[x + y * width_];
 }

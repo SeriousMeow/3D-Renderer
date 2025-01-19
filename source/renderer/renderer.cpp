@@ -105,8 +105,7 @@ void renderer::Renderer::DrawLine(Image& image, const Point& start, const Point&
             continue;
         }
         z_buffer_[screen_y * width_ + screen_x] = current_point.z;
-        image.GetImageReference()[screen_y * width_ + screen_x] =
-            Image::Pixel{.r = 1.0, .g = 1.0, .b = 1.0};
+        image.SetPixel(screen_x, screen_y, {.r = 1.0, .g = 1.0, .b = 1.0});
     }
 }
 
