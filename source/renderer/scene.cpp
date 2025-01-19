@@ -1,24 +1,34 @@
 #include "renderer/scene.hpp"
 
-renderer::Scene::Scene(const std::vector<SceneObject>& objects) : objects_{objects} {
+renderer::Scene::ObjectId renderer::Scene::Push(const Object& object,
+                                                const TransformMatrix& matrix) {
+    ObjectId id = objects_.size();
+    objects_.push_back({.id = id, .object = object, .object_to_scene_matrix = matrix});
+    return id;
 }
 
-void renderer::Scene::Push(const Object& object, const TransformMatrix& matrix) {
-    objects_.push_back({.object = object, .object_to_scene_matrix = matrix});
-}
-
-renderer::Scene::Iterator renderer::Scene::Begin() {
+renderer::Scene::ObjectsIterator renderer::Scene::ObjectsBegin() {
     return objects_.begin();
 }
 
-renderer::Scene::Iterator renderer::Scene::End() {
+renderer::Scene::ObjectsIterator renderer::Scene::ObjectsEnd() {
     return objects_.end();
 }
 
-renderer::Scene::ConstIterator renderer::Scene::Begin() const {
-    return objects_.begin();
+renderer::TransformMatrix renderer::Scene::GetObjectMatrix(const ObjectId id) {
+    {
+        assert(IsObjectExists(id) and "GetObjectMatrix: объекта с переданным ID не существует");
+    }
+    return objects_[id].object_to_scene_matrix;
 }
 
-renderer::Scene::ConstIterator renderer::Scene::End() const {
-    return objects_.end();
+void renderer::Scene::SetObjectMatrix(const ObjectId id, const TransformMatrix& new_matrix) {
+    {
+        assert(IsObjectExists(id) and "SetObjectMatrix: объекта с переданным ID не существует");
+    }
+    objects_[id].object_to_scene_matrix = new_matrix;
+}
+
+bool renderer::Scene::IsObjectExists(const ObjectId id) {
+    return (0 <= id and id <= objects_.size());
 }

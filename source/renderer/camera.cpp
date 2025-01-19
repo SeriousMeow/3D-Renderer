@@ -1,6 +1,6 @@
 #include "renderer/camera.hpp"
 
-using CameraIterator = renderer::Camera::Iterator;
+using CameraIterator = renderer::Camera::ObjectsIterator;
 
 CameraIterator::Iterator(CameraIterator::Pointer ptr, TransformMatrix transform)
     : object_{ptr}, tranform_{transform} {
@@ -61,13 +61,28 @@ bool CameraIterator::operator!=(const CameraIterator& other) {
 }
 
 CameraIterator renderer::Camera::Begin() {
-    return CameraIterator(scene_->Begin(), scene_to_camera_matrix_);
+    return CameraIterator(scene_->ObjectsBegin(), scene_to_camera_);
 }
 
 CameraIterator renderer::Camera::End() {
-    return CameraIterator(scene_->End(), scene_to_camera_matrix_);
+    return CameraIterator(scene_->ObjectsEnd(), scene_to_camera_);
 }
 
-renderer::Camera::Camera(renderer::Scene* scene, renderer::TransformMatrix scene_to_camera_matrix)
-    : scene_{scene}, scene_to_camera_matrix_{scene_to_camera_matrix} {
+renderer::Camera::Camera(renderer::Scene* scene, const renderer::TransformMatrix& scene_to_camera)
+    : scene_{scene}, scene_to_camera_{scene_to_camera} {
+    {
+        assert(scene and "Scene: scene не должен быть nullptr");
+    }
+}
+
+void renderer::Camera::SetNewScene(Scene* new_scene, const TransformMatrix& scene_to_camera) {
+    {
+        assert(new_scene and "SetNewScene: new_scene не доллжен быть nullptr");
+    }
+    scene_ = new_scene;
+    scene_to_camera_ = scene_to_camera;
+}
+
+renderer::TransformMatrix renderer::Camera::GetCameraMatrix() {
+    return scene_to_camera_;
 }

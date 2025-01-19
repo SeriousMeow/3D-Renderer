@@ -21,7 +21,7 @@ void renderer::Renderer::Render(renderer::Image& image) {
         }
     }
     z_buffer_.assign(width_ * height_, std::numeric_limits<float>::infinity());
-    for (Camera::Iterator object_camera_space_it = camera_->Begin();
+    for (Camera::ObjectsIterator object_camera_space_it = camera_->Begin();
          object_camera_space_it != camera_->End(); ++object_camera_space_it) {
         TransformMatrix object_to_camera = (*object_camera_space_it).object_to_camera_matrix;
 

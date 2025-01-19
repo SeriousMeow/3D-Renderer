@@ -24,7 +24,7 @@ public:
     class Iterator {
     public:
         using ValueType = CameraObject;
-        using Pointer = Scene::Iterator;
+        using Pointer = Scene::ObjectsIterator;
         using DifferenceType = std::ptrdiff_t;
 
         Iterator() = delete;
@@ -46,16 +46,52 @@ public:
         TransformMatrix tranform_;
     };
 
-    using Iterator = Iterator;
+    using ObjectsIterator = Iterator;
 
-    Camera(Scene* scene_ptr, TransformMatrix scene_to_camera_matrix);
+    /**
+     * @brief Создание камеры
+     *
+     * Создает камеру, наблюдающую за переданной сценой с использованием переданной матрицы перехода
+     *
+     * @param[in] scene Сцена
+     * @param[in] scene_to_camera Матрица перехода камеры
+     */
+    Camera(Scene* scene, const TransformMatrix& scene_to_camera);
 
-    Iterator Begin();
-    Iterator End();
+    /**
+     * @brief Установка новой сцены
+     *
+     * Устанавливает новую сцену, за которой наблюдает камера
+     *
+     * @param[in] new_scene Новая сцена
+     * @param[in] scene_to_camera Матрица перехода камеры в новой сцене
+     */
+    void SetNewScene(Scene* new_scene, const TransformMatrix& scene_to_camera);
+
+    /**
+     * @brief Получение матрицы перехода камеры
+     *
+     * Возвращает матрицу перехода камеры
+     *
+     * return Матрица перехода камеры
+     */
+    TransformMatrix GetCameraMatrix();
+
+    /**
+     * @brief Установка новой матрицы перехода камеры
+     *
+     * Устанавливает новую матрицу перехода камеры
+     *
+     * @param[in] new_matrix Новая матрица
+     */
+    void SetCameraMatrix(const TransformMatrix& new_matrix);
+
+    ObjectsIterator Begin();
+    ObjectsIterator End();
 
 private:
     Scene* scene_;
-    TransformMatrix scene_to_camera_matrix_;
+    TransformMatrix scene_to_camera_;
 };
 
 };  // namespace renderer
