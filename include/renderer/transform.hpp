@@ -14,7 +14,6 @@ namespace renderer {
 using TransformMatrix = glm::mat4;
 
 /**
- * @namespace
  * @brief Операции с матрицами преобразований
  *
  * Содержит методы, позволяющие создавать матрицы преобразований с нужными свойствами. Также
@@ -35,6 +34,8 @@ const TransformMatrix kNoTransforms{1.0f};
  * Выполняет сдвиг на вектор, переданного в direction
  *
  * @param[in] direction Вектор, на который производится сдвиг
+ *
+ * @return Матрица преобразования
  */
 TransformMatrix Translate(const Vector& direction);
 
@@ -46,6 +47,8 @@ TransformMatrix Translate(const Vector& direction);
  * @param[in] x_scale_factor Коэффициент растяжения оси x
  * @param[in] y_scale_factor Коэффициент растяжения оси y
  * @param[in] z_scale_factor Коэффициент растяжения оси z
+ *
+ * @return Матрица преобразования
  */
 TransformMatrix Scale(const float x_scale_factor, const float y_scale_factor,
                       const float z_scale_factor);
@@ -56,6 +59,8 @@ TransformMatrix Scale(const float x_scale_factor, const float y_scale_factor,
  * Выполняет растяжении вдоль всех координатных осей в scale_factor раз
  *
  * @param[in] scale_factor Коэффициент растяжения
+ *
+ * @return Матрица преобразования
  */
 TransformMatrix ScaleUniform(const float scale_factor);
 
@@ -67,6 +72,8 @@ TransformMatrix ScaleUniform(const float scale_factor);
  *
  * @param[in] angle Угол поворота в градусах
  * @param[in] axis Ось
+ *
+ * @return Матрица преобразования
  */
 TransformMatrix RotateDegrees(const float angle, const Vector& axis);
 
@@ -78,18 +85,10 @@ TransformMatrix RotateDegrees(const float angle, const Vector& axis);
  *
  * @param[in] angle Угол поворота в радианах
  * @param[in] axis Ось
+ *
+ * @return Матрица преобразования
  */
 TransformMatrix RotateRadians(const float angle, const Vector& axis);
-
-/**
- * @brief Поворот вокруг оси z
- *
- * Выполняет поворот вокруг оси z против часовой стрелки на angle градусов. Угол может быть
- * отрицательным, что соответсвует повороту по часовой стрелке
- *
- * @param[in] angle Угол поворота
- */
-TransformMatrix RotateAboutAxisZ(const float angle);
 
 /**
  * @brief Поворот вокруг оси x
@@ -98,6 +97,8 @@ TransformMatrix RotateAboutAxisZ(const float angle);
  * отрицательным, что соответсвует повороту по часовой стрелке
  *
  * @param[in] angle Угол поворота
+ *
+ * @return Матрица преобразования
  */
 TransformMatrix RotateAboutAxisX(const float angle);
 
@@ -108,8 +109,22 @@ TransformMatrix RotateAboutAxisX(const float angle);
  * отрицательным, что соотвествует повороту по часовой стрелке
  *
  * @param[in] angle Угол поворота
+ *
+ * @return Матрица преобразования
  */
 TransformMatrix RotateAboutAxisY(const float angle);
+
+/**
+ * @brief Поворот вокруг оси z
+ *
+ * Выполняет поворот вокруг оси z против часовой стрелки на angle градусов. Угол может быть
+ * отрицательным, что соответсвует повороту по часовой стрелке
+ *
+ * @param[in] angle Угол поворота
+ *
+ * @return Матрица преобразования
+ */
+TransformMatrix RotateAboutAxisZ(const float angle);
 
 /**
  * @brief Направление камеры на точку
@@ -118,6 +133,8 @@ TransformMatrix RotateAboutAxisY(const float angle);
  *
  * @param[in] camera_position Положение камеры
  * @param[in] center Точка, в которую смотрит камера
+ *
+ * @return Матрица преобразования
  */
 TransformMatrix CameraLookAtPoint(const Point& camera_position, const Point& center);
 
@@ -129,6 +146,8 @@ TransformMatrix CameraLookAtPoint(const Point& camera_position, const Point& cen
  *
  * @param[in] camera_position Положение камеры
  * @param[in] direction Направление взгляда
+ *
+ * @return Матрица преобразования
  */
 TransformMatrix CameraLookAtDirection(const Point& camera_position, const Vector& direction);
 

@@ -49,7 +49,7 @@ public:
      * @param[in] object Объект
      * @param[in] matrix Матрица
      *
-     * return ID добавленного объекта
+     * @return ID добавленного объекта
      */
     ObjectId Push(const Object& object, const TransformMatrix& matrix);
 
@@ -61,7 +61,7 @@ public:
      *
      * @param[in] id ID объекта
      *
-     * return Матрица перехода объекта
+     * @return Матрица перехода объекта
      */
     TransformMatrix GetObjectMatrix(const ObjectId id);
 
@@ -83,21 +83,21 @@ public:
      *
      * @param[in] id ID объекта
      *
-     * return Существует ли объект
+     * @return Существует ли объект
      */
     bool IsObjectExists(const ObjectId id);
 
     /**
      * @brief Итератор начала контейнера
      *
-     * return Итератор начала контейнера
+     * @return Итератор начала контейнера
      */
     ObjectsIterator ObjectsBegin();
 
     /**
      * @brief Итератор конца контейнера
      *
-     * return Итератор конца контейнера
+     * @return Итератор конца контейнера
      */
     ObjectsIterator ObjectsEnd();
 

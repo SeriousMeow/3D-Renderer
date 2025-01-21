@@ -11,7 +11,6 @@
 
 namespace renderer {
 /**
- * @namespace
  * @brief Полезные инструменты
  *
  * Данные инструменты могут облегчить работу с библиотекой в некоторых сценариях, но они не являются
@@ -31,7 +30,7 @@ namespace utils {
  *
  * @param[in] path Путь до файла
  *
- * return Объект, загруженный из файла
+ * @return Объект, загруженный из файла
  */
 Object LoadObjFile(const std::string& path);
 

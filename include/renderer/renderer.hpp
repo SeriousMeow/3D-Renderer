@@ -11,7 +11,7 @@
 namespace renderer {
 
 /**
- * @brief Рендерит камеру в изображение
+ * @brief Позволяет рендерит изображение с заданной камеры
  */
 class Renderer {
 public:

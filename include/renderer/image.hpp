@@ -12,7 +12,7 @@ namespace renderer {
 /**
  * @brief Изображение
  *
- * Представляет из себя линейный массив пикселей
+ * Объект для хранения изображения, получаемого в процессе рендеринга
  */
 class Image {
 public:
@@ -56,7 +56,7 @@ public:
      *
      * @param[in] x Столбец
      * @param[in] y Строка
-     * @param[in] new_pixel Ноыое значение пикселя
+     * @param[in] new_pixel Новое значение пикселя
      */
     void SetPixel(const size_t x, const size_t y, const Pixel& new_pixel);
 
@@ -68,7 +68,7 @@ public:
      * @param[in] x Столбец
      * @param[in] y Строка
      *
-     * return Значения пикселя в позиции (x, y)
+     * @return Значение пикселя в позиции
      */
     Pixel GetPixel(const size_t x, const size_t y);
 

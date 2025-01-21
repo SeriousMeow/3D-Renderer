@@ -11,7 +11,6 @@
 #include "renderer/utils.hpp"
 
 /**
- * @namespace
  * Доступ ко всем элементам библиотеки
  */
 namespace renderer {};

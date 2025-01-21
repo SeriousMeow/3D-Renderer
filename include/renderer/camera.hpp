@@ -15,10 +15,16 @@ namespace renderer {
 class Camera {
 public:
     /**
-     * @brief Указатель на объект с матрицей перехода из пространства объекта в пространство камеры
+     * @brief Объект с матрицей перехода
      */
     struct CameraObject {
+        /**
+         * @brief Указатель на объект
+         */
         Object* object_ptr;
+        /**
+         * @brief Матрица перехода в пространство камеры
+         */
         TransformMatrix object_to_camera_matrix;
     };
     class Iterator {
@@ -73,7 +79,7 @@ public:
      *
      * Возвращает матрицу перехода камеры
      *
-     * return Матрица перехода камеры
+     * @return Матрица перехода камеры
      */
     TransformMatrix GetCameraMatrix();
 
@@ -86,7 +92,26 @@ public:
      */
     void SetCameraMatrix(const TransformMatrix& new_matrix);
 
+    /**
+     * @brief Итератор начала объектов
+     *
+     * Итератор начала объектов
+     *
+     * @return Итератор начала объектов
+     *
+     * @todo Переименовать метод для отделения объектов от остальных типов
+     */
     ObjectsIterator Begin();
+
+    /**
+     * @brief Итератор конца объектов
+     *
+     * Итератор конца объектов
+     *
+     * @return Итератор конца объектов
+     *
+     * @todo Переименовать метод для отделения объектов от остальных типов
+     */
     ObjectsIterator End();
 
 private:
