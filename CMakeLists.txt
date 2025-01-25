@@ -34,7 +34,7 @@ set_target_properties(
 target_include_directories(
     Renderer_Renderer ${warning_guard}
     PUBLIC
-    "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+    "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source>"
 )
 
 target_include_directories(Renderer_Renderer PRIVATE ${glm_SOURCE_DIR})
