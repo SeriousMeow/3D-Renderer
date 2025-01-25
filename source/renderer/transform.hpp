@@ -5,13 +5,9 @@
 
 #pragma once
 
-#include <glm/mat4x4.hpp>
-
-#include "primitives.hpp"
+#include "renderer/types.hpp"
 
 namespace renderer {
-
-using TransformMatrix = glm::mat4;
 
 /**
  * @brief Операции с матрицами преобразований
