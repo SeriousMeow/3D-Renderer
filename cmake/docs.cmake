@@ -18,6 +18,30 @@ FetchContent_MakeAvailable(mcss)
 
 find_package(Python3 3.6 REQUIRED)
 
+# ---- Developer mode parameters ----
+
+if(Renderer_DEVELOPER_MODE)
+    set(DOXYGEN_EXTRACT_ALL YES)
+    set(DOXYGEN_EXTRACT_PRIVATE YES)
+    set(DOXYGEN_EXTRACT_STATIC YES)
+    set(DOXYGEN_EXTRACT_LOCAL_METHODS YES)
+    set(DOXYGEN_GENERATE_TODOLIST YES)
+    set(DOXYGEN_GENERATE_TESTLIST YES)
+    set(DOXYGEN_GENERATE_BUGLIST YES)
+
+    set(MCSS_DEV_MENU "('Developer menu', 'todo', [('TODO', 'todo')])")
+else()
+    set(DOXYGEN_EXTRACT_ALL NO)
+    set(DOXYGEN_EXTRACT_PRIVATE NO)
+    set(DOXYGEN_EXTRACT_STATIC NO)
+    set(DOXYGEN_EXTRACT_LOCAL_METHODS NO)
+    set(DOXYGEN_GENERATE_TODOLIST NO)
+    set(DOXYGEN_GENERATE_TESTLIST NO)
+    set(DOXYGEN_GENERATE_BUGLIST NO)
+
+    set(MCSS_DEV_MENU  "")
+endif()
+
 # ---- Declare documentation target ----
 
 set(
