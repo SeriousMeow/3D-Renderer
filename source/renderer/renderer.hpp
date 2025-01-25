@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "camera.hpp"
 #include "image.hpp"
+#include "scene.hpp"
 
 namespace renderer {
 
@@ -16,40 +16,42 @@ namespace renderer {
 class Renderer {
 public:
     /**
-     * @brief Создание рендерера из камеры
-     *
-     * @param[in] camera Камера
+     * @brief Создание рендерера
      */
-    explicit Renderer(Camera* camera);
-
-    /**
-     * @brief Инициализация переменных рендеринга
-     *
-     * Инициализирует внутренние переменные, для вычисления которых нужны параметры выходного
-     * изображения. Также используется для изменения параметров отрисовки
-     *
-     * @param[in] width Ширина выходного изображения, должна быть больше 0
-     * @param[in] height Высота выходного изображения, должна быть больше 0
-     * @param[in] near_plane_distance Расстояние от камеры до экрана, должно быть больше 0.0
-     * @param[in] fov_x Горизонтальное поле зрения в градусах, должно быть больше 0.0 и меньше 360.0
-     *
-     * @todo Сделать инициализацию внутренней
-     */
-    void Init(const size_t width, const size_t height, const float near_plane_distance = 1.0,
-              const float fov_x = 90.0);
+    Renderer() = default;
 
     /**
      * @brief Рендеринг камеры в изображение
      *
-     * Перед вызовом Render обязательно должна быть произведена инициализация с помощью функции Init
+     * Рендерит переданную сцену через камеру с переданным ID. Требуется, чтобы камера принадлежала
+     * сцене. Параметры выходного изображения берутся из переданного изображения. Можно указать
+     * горизонтальное поле зрения в градусах в диапазоне от 0.0 до 360.0 (не включая крайние
+     * значения), по умолчанию 90.0. Также можно указать фокусное расстояни камеры от 0.1 до 10.0,
+     * по умолчанию 1.0
      *
-     * @param[out] image Изображение, в которое будет сохранен результат
+     * @param[in] scene Сцена
+     * @param[in] camera_id ID камеры в сцене
+     * @param[in] image Изображение
+     * @param[in] fov_x Горизонтальное поле зрения
      *
-     * @todo Изменить интерфейс функции
+     * @return Срендеренное изображение
      */
-    void Render(Image& image);
+    Image&& Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image,
+                   const float fov_x = 90.0, const float focal_length = 1.0);
 
 private:
+    /**
+     * @brief Инициализация переменных рендеринга
+     *
+     * Инициализирует внутренние переменные
+     *
+     * @param[in] width Ширина выходного изображения, должна быть больше 0
+     * @param[in] height Высота выходного изображения, должна быть больше 0
+     * @param[in] focal_length Расстояние от камеры до экрана, должно быть больше 0.0
+     * @param[in] fov_x Горизонтальное поле зрения в градусах, должно быть больше 0.0 и меньше 360.0
+     */
+    void Init(const size_t width, const size_t height, const float focal_length, const float fov_x);
+
     /**
      * @brief Рисование отрезка
      *
@@ -60,13 +62,18 @@ private:
      * @param[in] end Конец отрезка
      */
     void DrawLine(Image& image, const Point& start, const Point& end);
+
+    struct Parameters {
+        size_t width{0};
+        size_t height{0};
+        float fov_x{0};
+        float focal_length{0};
+        float x_scale{0};
+        float y_scale{0};
+        Matrix camera_to_clip;
+    };
+    Parameters parameters_;
     std::vector<float> z_buffer_;
-    Camera* camera_;
-    size_t width_{0};
-    size_t height_{0};
-    float x_scale_factor_;
-    float y_scale_factor_;
-    Matrix camera_to_clip_;
 };
 
 };  // namespace renderer

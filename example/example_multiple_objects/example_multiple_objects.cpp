@@ -10,36 +10,33 @@ int main() {
     renderer::Scene scene;
 
     // Добавляем несколько объектов
-    //
+
     // Куб с центром (0, 0, 0)
-    scene.Push(cube, renderer::transforms::kNoTransforms);
+    scene.PushObject(cube, renderer::transforms::kNoTransforms);
 
     // Куб с центром (2, 2, 0)
-    scene.Push(cube, renderer::transforms::Translate(
-                         {-2, -2, 0}));  // принимает матрицу преобразования из объекта в сцену,
-                                         // поэтому противоположный вектор
+    scene.PushObject(cube, renderer::transforms::Translate(
+                               {-2, -2, 0}));  // принимает матрицу преобразования из объекта в
+                                               // сцену, поэтому противоположный вектор
 
     // Куб с центром (-2, -2, 0), повернутый на 45 градусов относительно вертикали
-    scene.Push(cube, renderer::transforms::Translate({2, 2, 0}) *
-                         renderer::transforms::RotateAboutAxisZ(45));
+    scene.PushObject(cube, renderer::transforms::Translate({2, 2, 0}) *
+                               renderer::transforms::RotateAboutAxisZ(45));
 
     // Создаем камеру в точке (3, -4, 2), смотрящую на точку (0, 0, 0)
     renderer::Matrix camera_matrix = renderer::transforms::CameraLookAtPoint({3, -4, 2}, {0, 0, 0});
-    renderer::Camera camera{&scene, camera_matrix};
+    renderer::Scene::CameraId camera_id = scene.PushCamera(camera_matrix);
 
-    // Создаем рендерер и инициализируем параметры
-    renderer::Renderer renderer{&camera};
+    // Создаем рендерер
+    renderer::Renderer renderer;
 
+    // Параметры
     const size_t width = 1280;
     const size_t height = 720;
-    const float fov = 90.0;
-    const float near_plane_distance = 1.0;
-
-    renderer.Init(width, height, near_plane_distance, fov);
 
     // Создаем изображение и рендерим сцену
     renderer::Image image{width, height};
-    renderer.Render(image);
+    image = renderer.Render(scene, camera_id, std::move(image));
 
     // Записываем результат в файл
     bmp::Image result_image{width, height};

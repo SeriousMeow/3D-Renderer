@@ -23,26 +23,23 @@ int main() {
 
     // Создаем сцену и выставляем объект в начало координат
     renderer::Scene scene;
-    scene.Push(piramide, renderer::transforms::kNoTransforms);
+    scene.PushObject(piramide, renderer::transforms::kNoTransforms);
 
     // Создаем камеру в точке (-1, -1, 1), смотрящую на точку (0.5, 0.5, 0.5)
     renderer::Matrix camera_matrix =
         renderer::transforms::CameraLookAtPoint({-1, -1, 1}, {0.5, 0.5, 0.5});
-    renderer::Camera camera{&scene, camera_matrix};
+    renderer::Scene::CameraId camera_id = scene.PushCamera(camera_matrix);
 
-    // Создаем рендерер и инициализируем параметры
-    renderer::Renderer renderer{&camera};
+    // Создаем рендерер
+    renderer::Renderer renderer;
 
+    // Параметры
     const size_t width = 1280;
     const size_t height = 720;
-    const float fov = 90.0;
-    const float near_plane_distance = 1.0;
-
-    renderer.Init(width, height, near_plane_distance, fov);
 
     // Создаем изображение и рендерим сцену
     renderer::Image image{width, height};
-    renderer.Render(image);
+    image = renderer.Render(scene, camera_id, std::move(image));
 
     // Записываем результат в файл
     bmp::Image result_image{width, height};

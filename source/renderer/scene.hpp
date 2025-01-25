@@ -24,15 +24,36 @@ public:
     using ObjectId = size_t;
 
     /**
-     * @brief Объект с матрицей трансформации в сцене
+     * @brief ID камера
+     *
+     * Используется указания на камеру в сцене
+     */
+    using CameraId = size_t;
+
+    /**
+     * @brief Объект в сцене
      */
     struct SceneObject {
+        /**
+         * @brief ID объекта
+         */
         ObjectId id;
+
+        /**
+         * @brief Объект
+         */
         Object object;
-        Matrix object_to_scene_matrix;
+
+        /**
+         * @brief Матрица объекта
+         */
+        Matrix object_to_scene;
     };
 
-    using ObjectsIterator = std::vector<SceneObject>::iterator;
+    /**
+     * @brief Итератор объектов в сцене
+     */
+    using ObjectsIterator = std::vector<SceneObject>::const_iterator;
 
     /**
      * @brief Создание пустой сцены
@@ -50,7 +71,19 @@ public:
      *
      * @return ID добавленного объекта
      */
-    ObjectId Push(const Object& object, const Matrix& matrix);
+    ObjectId PushObject(const Object& object, const Matrix& matrix);
+
+    /**
+     * @brief Добавление камеры в сцену
+     *
+     * Добавляет камеру в сцену. Переданная матрица является матрицей перехода из координат сцены в
+     * координаты камеры
+     *
+     * @param[in] matrix Матрица
+     *
+     * @return ID добавленной камеры
+     */
+    CameraId PushCamera(const Matrix& matrix);
 
     /**
      * @brief Получение матрицы перехода объекта
@@ -62,7 +95,19 @@ public:
      *
      * @return Матрица перехода объекта
      */
-    Matrix GetObjectMatrix(const ObjectId id);
+    Matrix GetObjectMatrix(const ObjectId id) const;
+
+    /**
+     * @brief Получение матрицы перехода камеры
+     *
+     * Возвращает матрицу перехода камеры с ID, равным id. Требуется, чтобы камера с таким id
+     * существовала
+     *
+     * @param[in] id ID камеры
+     *
+     * @return Матрица перехода камеры
+     */
+    Matrix GetCameraMatrix(const CameraId id) const;
 
     /**
      * @brief Установка новой матрицы перехода объекта
@@ -76,6 +121,17 @@ public:
     void SetObjectMatrix(const ObjectId id, const Matrix& new_matrix);
 
     /**
+     * @brief Установка новой матрицы перехода камеры
+     *
+     * Устанавливает новую матрицу перехода камеры с ID, равным id. Требуется, чтобы камера с таким
+     * id существовала
+     *
+     * @param[in] id ID объекта
+     * @param[in] new_matrix Новая матрица перехода
+     */
+    void SetCameraMatrix(const CameraId id, const Matrix& new_matrix);
+
+    /**
      * @brief Проверка существования объекта
      *
      * Проверяет, существует ли в сцене объект с заданным ID
@@ -84,24 +140,36 @@ public:
      *
      * @return Существует ли объект
      */
-    bool IsObjectExists(const ObjectId id);
+    bool IsObjectExists(const ObjectId id) const;
 
     /**
-     * @brief Итератор начала контейнера
+     * @brief Проверка существования камеры
      *
-     * @return Итератор начала контейнера
+     * Проверяет, существует ли в сцене камера с заданным ID
+     *
+     * @param[in] id ID камера
+     *
+     * @return Существует ли камера
      */
-    ObjectsIterator ObjectsBegin();
+    bool IsCameraExists(const CameraId id) const;
 
     /**
-     * @brief Итератор конца контейнера
+     * @brief Итератор объектов
      *
-     * @return Итератор конца контейнера
+     * @return Итератор начала объектов в сцене
      */
-    ObjectsIterator ObjectsEnd();
+    ObjectsIterator ObjectsBegin() const;
+
+    /**
+     * @brief Итератор объектов
+     *
+     * @return Итератор конца объектов в сцене
+     */
+    ObjectsIterator ObjectsEnd() const;
 
 private:
     std::vector<SceneObject> objects_;
+    std::vector<Matrix> cameras_;
 };
 
 };  // namespace renderer

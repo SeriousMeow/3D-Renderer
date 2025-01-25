@@ -27,13 +27,45 @@ public:
         float b;
     };
 
+    Image() = delete;
+
     /**
      * @brief Создание изображения
      *
      * @param[in] width Ширина изображения
      * @param[in] height Высота изображения
+     *
+     * @todo Поставить защиту на ширину и высоту
      */
     Image(const size_t width, const size_t height);
+
+    /**
+     * @brief Создание изображения
+     *
+     * @param[in] other Изображение для копирования
+     */
+    Image(const Image& other);
+
+    /**
+     * @brief Создание изображения
+     *
+     * @param[in] other Изображение для перемещения
+     */
+    Image(Image&& other);
+
+    /**
+     * @brief Оператор присвоения
+     *
+     * @param[in] other Изображение для копирования
+     */
+    Image& operator=(const Image& other);
+
+    /**
+     * @brief Оператор присвоения
+     *
+     * @param[in] other Изображение для перемещения
+     */
+    Image& operator=(Image&& other);
 
     /**
      * @brief Получение ширины изображения
@@ -74,6 +106,9 @@ public:
 
 private:
     size_t width_;
+    /**
+     * @todo удалить лишний параметр
+     */
     size_t height_;
     std::vector<Pixel> image_;
 };

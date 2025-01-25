@@ -3,34 +3,37 @@
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-renderer::Renderer::Renderer(renderer::Camera* camera) : camera_{camera} {
-    assert(camera and "Renderer: camera не может быть nullptr");
-}
-
-void renderer::Renderer::Render(renderer::Image& image) {
+renderer::Image&& renderer::Renderer::Render(const Scene& scene, const Scene::CameraId camera_id,
+                                             Image&& image, const float fov_x,
+                                             const float focal_length) {
     {
-        {
-            assert((image.GetWidth() == width_) and
-                   "Renderer: ширина переданного изображения не совпадает с переданным в init");
-            assert((image.GetHeight() == height_) and
-                   "Renderer: высота переданного изображения не совпадает с переданным в init");
-        }
-        {
-            assert((width_ != 0) and "Render: ширина не может быть 0");
-            assert((height_ != 0) and "Render: высота не может быть 0");
-        }
+        assert((image.GetWidth() != 0) and
+               "Render: ширина переданного изображения не может быть 0");
+        assert((image.GetHeight() != 0) and
+               "Render: высота переданного изображения не может быть 0");
+
+        assert((fov_x > 0.0 + glm::epsilon<float>()) and "Render: fov_x должен быть больше 0.0");
+        assert((fov_x < 360.0 - glm::epsilon<float>()) and
+               "Render: fov_x должен быть меньше 360.0");
+
+        assert((focal_length >= 0.1) and "Render: focal_length должен быть не меньше 0.1");
+        assert((focal_length <= 10.0) and "Render: focal_length должен быть не больше 10.0");
+
+        assert((scene.IsCameraExists(camera_id)) and "Render: камера должна принадлежать сцене");
     }
-    z_buffer_.assign(width_ * height_, std::numeric_limits<float>::infinity());
-    for (Camera::ObjectsIterator object_camera_space_it = camera_->Begin();
-         object_camera_space_it != camera_->End(); ++object_camera_space_it) {
-        Matrix object_to_camera = (*object_camera_space_it).object_to_camera_matrix;
+    if (image.GetWidth() != parameters_.width or image.GetHeight() != parameters_.height or
+        fov_x != parameters_.fov_x or focal_length != parameters_.focal_length) {
+        Init(image.GetWidth(), image.GetHeight(), focal_length, fov_x);
+    }
+    z_buffer_.assign(parameters_.width * parameters_.height,
+                     std::numeric_limits<float>::infinity());
+    for (Scene::ObjectsIterator objects_it = scene.ObjectsBegin(); objects_it != scene.ObjectsEnd();
+         ++objects_it) {
+        Matrix object_to_camera = scene.GetCameraMatrix(camera_id) * (*objects_it).object_to_scene;
+        const Object& object = (*objects_it).object;
 
-        Object* object_ptr = (*object_camera_space_it).object_ptr;
-        assert(object_ptr and "Renderer: получен nullptr указатель на object от camera");
-
-        for (Object::Iterator triangle_it = object_ptr->Begin(); triangle_it != object_ptr->End();
+        for (Object::ConstIterator triangle_it = object.Begin(); triangle_it != object.End();
              ++triangle_it) {
-
             Triangle triangle = *triangle_it;
             Point4 vertices[3];
             // нормализуем координаты и переводим в координаты камеры
@@ -55,7 +58,7 @@ void renderer::Renderer::Render(renderer::Image& image) {
                 continue;
             }
             for (size_t i = 0; i < 3; ++i) {
-                vertices[i] = camera_to_clip_ * vertices[i];
+                vertices[i] = parameters_.camera_to_clip * vertices[i];
                 assert((glm::epsilonNotEqual(vertices[i].w, 0.0f, glm::epsilon<float>())) and
                        "Renderer: после умножения на матрицу перхода в Clip пространство "
                        "координата w стала 0");
@@ -66,17 +69,18 @@ void renderer::Renderer::Render(renderer::Image& image) {
             DrawLine(image, Point{vertices[2]}, Point{vertices[0]});
         }
     }
+    return std::move(image);
 }
 
 void renderer::Renderer::DrawLine(Image& image, const Point& start, const Point& end) {
     // DDA-Line
-    const size_t half_width = width_ / 2;
-    const size_t half_height = height_ / 2;
+    const size_t half_width = parameters_.width / 2;
+    const size_t half_height = parameters_.height / 2;
 
-    const int32_t x_start = std::round(start.x * x_scale_factor_ * half_width);
-    const int32_t x_end = std::round(end.x * x_scale_factor_ * half_width);
-    const int32_t y_start = std::round(start.y * y_scale_factor_ * half_height);
-    const int32_t y_end = std::round(end.y * y_scale_factor_ * half_height);
+    const int32_t x_start = std::round(start.x * parameters_.x_scale * half_width);
+    const int32_t x_end = std::round(end.x * parameters_.x_scale * half_width);
+    const int32_t y_start = std::round(start.y * parameters_.y_scale * half_height);
+    const int32_t y_end = std::round(end.y * parameters_.y_scale * half_height);
 
     const uint32_t steps = std::max(std::abs(x_start - x_end), std::abs(y_start - y_end)) + 1;
 
@@ -95,36 +99,44 @@ void renderer::Renderer::DrawLine(Image& image, const Point& start, const Point&
         }
         const int32_t screen_x = std::round(current_point.x * half_width) + half_width;
         const int32_t screen_y = half_height - std::round(current_point.y * half_height);
-        if (screen_x < 0 or screen_x >= width_) {
+        if (screen_x < 0 or screen_x >= parameters_.width) {
             continue;
         }
-        if (screen_y < 0 or screen_y >= height_) {
+        if (screen_y < 0 or screen_y >= parameters_.height) {
             continue;
         }
-        if (z_buffer_[screen_y * width_ + screen_x] < current_point.z) {
+        if (z_buffer_[screen_y * parameters_.width + screen_x] < current_point.z) {
             continue;
         }
-        z_buffer_[screen_y * width_ + screen_x] = current_point.z;
+        z_buffer_[screen_y * parameters_.width + screen_x] = current_point.z;
         image.SetPixel(screen_x, screen_y, {.r = 1.0, .g = 1.0, .b = 1.0});
     }
 }
 
-void renderer::Renderer::Init(const size_t width, const size_t height,
-                              const float near_plane_distance, const float fov_x) {
+void renderer::Renderer::Init(const size_t width, const size_t height, const float focal_length,
+                              const float fov_x) {
     {
-        assert((fov_x > 0.0f + glm::epsilon<float>()) and "Init: fov_x должен быть больше 0.0");
-        assert((fov_x < 360.0f - glm::epsilon<float>()) and "Init: fov_x должен быть меньше 360.0");
+        assert((width != 0) and "Init: ширина переданного изображения не может быть 0");
+        assert((height != 0) and "Init: высота переданного изображения не может быть 0");
+
+        assert((fov_x > 0.0 + glm::epsilon<float>()) and "Init: fov_x должен быть больше 0.0");
+        assert((fov_x < 360.0 - glm::epsilon<float>()) and "Init: fov_x должен быть меньше 360.0");
+
+        assert((focal_length >= 0.1) and "Init: focal_length должен быть не меньше 0.1");
+        assert((focal_length <= 10.0) and "Init: focal_length должен быть не больше 10.0");
     }
-    width_ = width;
-    height_ = height;
+    parameters_.width = width;
+    parameters_.height = height;
+    parameters_.fov_x = fov_x;
+    parameters_.focal_length = focal_length;
 
     const float aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
-    const float scale_factor = near_plane_distance * std::tan(glm::radians(fov_x) / 2);
+    const float scale_factor = focal_length * std::tan(glm::radians(fov_x) / 2);
 
     const float fov_y = 2.0f * std::atan2(std::tan(glm::radians(fov_x) / 2), aspect_ratio);
 
-    x_scale_factor_ = scale_factor;
-    y_scale_factor_ = aspect_ratio / scale_factor;
+    parameters_.x_scale = scale_factor;
+    parameters_.y_scale = aspect_ratio / scale_factor;
 
-    camera_to_clip_ = glm::infinitePerspective(fov_y, aspect_ratio, near_plane_distance);
+    parameters_.camera_to_clip = glm::infinitePerspective(fov_y, aspect_ratio, focal_length);
 }

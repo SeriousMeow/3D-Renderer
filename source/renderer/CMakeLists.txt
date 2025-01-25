@@ -1,6 +1,5 @@
 target_sources(Renderer_Renderer PRIVATE object.cpp)
 target_sources(Renderer_Renderer PRIVATE scene.cpp)
-target_sources(Renderer_Renderer PRIVATE camera.cpp)
 target_sources(Renderer_Renderer PRIVATE image.cpp)
 target_sources(Renderer_Renderer PRIVATE renderer.cpp)
 target_sources(Renderer_Renderer PRIVATE transform.cpp)

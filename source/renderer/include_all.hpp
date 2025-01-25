@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "renderer/camera.hpp"
 #include "renderer/object.hpp"
 #include "renderer/primitives.hpp"
 #include "renderer/renderer.hpp"
