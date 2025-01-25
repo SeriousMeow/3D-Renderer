@@ -23,7 +23,7 @@ void renderer::Renderer::Render(renderer::Image& image) {
     z_buffer_.assign(width_ * height_, std::numeric_limits<float>::infinity());
     for (Camera::ObjectsIterator object_camera_space_it = camera_->Begin();
          object_camera_space_it != camera_->End(); ++object_camera_space_it) {
-        TransformMatrix object_to_camera = (*object_camera_space_it).object_to_camera_matrix;
+        Matrix object_to_camera = (*object_camera_space_it).object_to_camera_matrix;
 
         Object* object_ptr = (*object_camera_space_it).object_ptr;
         assert(object_ptr and "Renderer: получен nullptr указатель на object от camera");

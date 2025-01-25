@@ -6,7 +6,6 @@
 #pragma once
 
 #include "renderer/object.hpp"
-#include "renderer/transform.hpp"
 
 namespace renderer {
 
@@ -30,7 +29,7 @@ public:
     struct SceneObject {
         ObjectId id;
         Object object;
-        TransformMatrix object_to_scene_matrix;
+        Matrix object_to_scene_matrix;
     };
 
     using ObjectsIterator = std::vector<SceneObject>::iterator;
@@ -51,7 +50,7 @@ public:
      *
      * @return ID добавленного объекта
      */
-    ObjectId Push(const Object& object, const TransformMatrix& matrix);
+    ObjectId Push(const Object& object, const Matrix& matrix);
 
     /**
      * @brief Получение матрицы перехода объекта
@@ -63,7 +62,7 @@ public:
      *
      * @return Матрица перехода объекта
      */
-    TransformMatrix GetObjectMatrix(const ObjectId id);
+    Matrix GetObjectMatrix(const ObjectId id);
 
     /**
      * @brief Установка новой матрицы перехода объекта
@@ -74,7 +73,7 @@ public:
      * @param[in] id ID объекта
      * @param[in] new_matrix Новая матрица перехода
      */
-    void SetObjectMatrix(const ObjectId id, const TransformMatrix& new_matrix);
+    void SetObjectMatrix(const ObjectId id, const Matrix& new_matrix);
 
     /**
      * @brief Проверка существования объекта

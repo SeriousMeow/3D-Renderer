@@ -10,6 +10,7 @@
 #include "renderer/primitives.hpp"
 #include "renderer/renderer.hpp"
 #include "renderer/scene.hpp"
+#include "renderer/transform.hpp"
 #include "renderer/types.hpp"
 #include "renderer/utils.hpp"
 

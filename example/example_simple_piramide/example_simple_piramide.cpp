@@ -26,7 +26,7 @@ int main() {
     scene.Push(piramide, renderer::transforms::kNoTransforms);
 
     // Создаем камеру в точке (-1, -1, 1), смотрящую на точку (0.5, 0.5, 0.5)
-    renderer::TransformMatrix camera_matrix =
+    renderer::Matrix camera_matrix =
         renderer::transforms::CameraLookAtPoint({-1, -1, 1}, {0.5, 0.5, 0.5});
     renderer::Camera camera{&scene, camera_matrix};
 

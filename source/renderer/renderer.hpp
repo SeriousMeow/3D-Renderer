@@ -32,6 +32,8 @@ public:
      * @param[in] height Высота выходного изображения, должна быть больше 0
      * @param[in] near_plane_distance Расстояние от камеры до экрана, должно быть больше 0.0
      * @param[in] fov_x Горизонтальное поле зрения в градусах, должно быть больше 0.0 и меньше 360.0
+     *
+     * @todo Сделать инициализацию внутренней
      */
     void Init(const size_t width, const size_t height, const float near_plane_distance = 1.0,
               const float fov_x = 90.0);
@@ -42,6 +44,8 @@ public:
      * Перед вызовом Render обязательно должна быть произведена инициализация с помощью функции Init
      *
      * @param[out] image Изображение, в которое будет сохранен результат
+     *
+     * @todo Изменить интерфейс функции
      */
     void Render(Image& image);
 
@@ -62,7 +66,7 @@ private:
     size_t height_{0};
     float x_scale_factor_;
     float y_scale_factor_;
-    TransformMatrix camera_to_clip_;
+    Matrix camera_to_clip_;
 };
 
 };  // namespace renderer

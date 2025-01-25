@@ -11,8 +11,7 @@ int main() {
     scene.Push(cube, renderer::transforms::kNoTransforms);
 
     // Создаем камеру в точке (3, -4, 2), смотрящую на точку (0, 0, 0)
-    renderer::TransformMatrix camera_matrix =
-        renderer::transforms::CameraLookAtPoint({3, -4, 2}, {0, 0, 0});
+    renderer::Matrix camera_matrix = renderer::transforms::CameraLookAtPoint({3, -4, 2}, {0, 0, 0});
     renderer::Camera camera{&scene, camera_matrix};
 
     // Создаем рендерер и инициализируем параметры

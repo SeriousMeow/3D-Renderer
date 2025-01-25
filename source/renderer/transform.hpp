@@ -22,7 +22,7 @@ namespace transforms {
  * Не производит никаких преобразований. Совмещает начала и направления координатных осей без
  * изменения масштаба
  */
-const TransformMatrix kNoTransforms{1.0f};
+const Matrix kNoTransforms{1.0f};
 
 /**
  * @brief Сдвиг заданным вектором
@@ -33,7 +33,7 @@ const TransformMatrix kNoTransforms{1.0f};
  *
  * @return Матрица преобразования
  */
-TransformMatrix Translate(const Vector& direction);
+Matrix Translate(const Vector& direction);
 
 /**
  * @brief Растяжение вдоль координатных осей
@@ -46,8 +46,7 @@ TransformMatrix Translate(const Vector& direction);
  *
  * @return Матрица преобразования
  */
-TransformMatrix Scale(const float x_scale_factor, const float y_scale_factor,
-                      const float z_scale_factor);
+Matrix Scale(const float x_scale_factor, const float y_scale_factor, const float z_scale_factor);
 
 /**
  * @brief Растяженне вдоль всех координатных осей
@@ -58,7 +57,7 @@ TransformMatrix Scale(const float x_scale_factor, const float y_scale_factor,
  *
  * @return Матрица преобразования
  */
-TransformMatrix ScaleUniform(const float scale_factor);
+Matrix ScaleUniform(const float scale_factor);
 
 /**
  * @brief Поворот вокруг оси
@@ -71,7 +70,7 @@ TransformMatrix ScaleUniform(const float scale_factor);
  *
  * @return Матрица преобразования
  */
-TransformMatrix RotateDegrees(const float angle, const Vector& axis);
+Matrix RotateDegrees(const float angle, const Vector& axis);
 
 /**
  * @brief Поворот вокруг оси
@@ -84,7 +83,7 @@ TransformMatrix RotateDegrees(const float angle, const Vector& axis);
  *
  * @return Матрица преобразования
  */
-TransformMatrix RotateRadians(const float angle, const Vector& axis);
+Matrix RotateRadians(const float angle, const Vector& axis);
 
 /**
  * @brief Поворот вокруг оси x
@@ -96,7 +95,7 @@ TransformMatrix RotateRadians(const float angle, const Vector& axis);
  *
  * @return Матрица преобразования
  */
-TransformMatrix RotateAboutAxisX(const float angle);
+Matrix RotateAboutAxisX(const float angle);
 
 /**
  * @brief Поворот вокруг оси y
@@ -108,7 +107,7 @@ TransformMatrix RotateAboutAxisX(const float angle);
  *
  * @return Матрица преобразования
  */
-TransformMatrix RotateAboutAxisY(const float angle);
+Matrix RotateAboutAxisY(const float angle);
 
 /**
  * @brief Поворот вокруг оси z
@@ -120,7 +119,7 @@ TransformMatrix RotateAboutAxisY(const float angle);
  *
  * @return Матрица преобразования
  */
-TransformMatrix RotateAboutAxisZ(const float angle);
+Matrix RotateAboutAxisZ(const float angle);
 
 /**
  * @brief Направление камеры на точку
@@ -132,7 +131,7 @@ TransformMatrix RotateAboutAxisZ(const float angle);
  *
  * @return Матрица преобразования
  */
-TransformMatrix CameraLookAtPoint(const Point& camera_position, const Point& center);
+Matrix CameraLookAtPoint(const Point& camera_position, const Point& center);
 
 /**
  * @brief Направление камеры в заданное направление
@@ -145,7 +144,7 @@ TransformMatrix CameraLookAtPoint(const Point& camera_position, const Point& cen
  *
  * @return Матрица преобразования
  */
-TransformMatrix CameraLookAtDirection(const Point& camera_position, const Vector& direction);
+Matrix CameraLookAtDirection(const Point& camera_position, const Vector& direction);
 
 };  // namespace transforms
 };  // namespace renderer

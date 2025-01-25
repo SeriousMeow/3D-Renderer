@@ -1,7 +1,6 @@
 #include "renderer/scene.hpp"
 
-renderer::Scene::ObjectId renderer::Scene::Push(const Object& object,
-                                                const TransformMatrix& matrix) {
+renderer::Scene::ObjectId renderer::Scene::Push(const Object& object, const Matrix& matrix) {
     ObjectId id = objects_.size();
     objects_.push_back({.id = id, .object = object, .object_to_scene_matrix = matrix});
     return id;
@@ -15,14 +14,14 @@ renderer::Scene::ObjectsIterator renderer::Scene::ObjectsEnd() {
     return objects_.end();
 }
 
-renderer::TransformMatrix renderer::Scene::GetObjectMatrix(const ObjectId id) {
+renderer::Matrix renderer::Scene::GetObjectMatrix(const ObjectId id) {
     {
         assert(IsObjectExists(id) and "GetObjectMatrix: объекта с переданным ID не существует");
     }
     return objects_[id].object_to_scene_matrix;
 }
 
-void renderer::Scene::SetObjectMatrix(const ObjectId id, const TransformMatrix& new_matrix) {
+void renderer::Scene::SetObjectMatrix(const ObjectId id, const Matrix& new_matrix) {
     {
         assert(IsObjectExists(id) and "SetObjectMatrix: объекта с переданным ID не существует");
     }
