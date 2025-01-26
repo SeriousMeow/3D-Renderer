@@ -22,7 +22,7 @@ int main() {
     const size_t height = 720;
 
     // Создаем изображение и рендерим сцену
-    renderer::Image image{width, height};
+    renderer::Image image{renderer::Width{width}, renderer::Height{height}};
     image = renderer.Render(scene, camera_id, std::move(image));
 
     // Записываем результат в файл

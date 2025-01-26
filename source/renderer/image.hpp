@@ -10,6 +10,15 @@
 namespace renderer {
 
 /**
+ * @brief Ширина изображения
+ */
+enum Width : size_t;
+/**
+ * @brief Высота изображения
+ */
+enum Height : size_t;
+
+/**
  * @brief Изображение
  *
  * Объект для хранения изображения, получаемого в процессе рендеринга
@@ -37,7 +46,7 @@ public:
      *
      * @todo Поставить защиту на ширину и высоту
      */
-    Image(const size_t width, const size_t height);
+    Image(const Width width, const Height height);
 
     /**
      * @brief Создание изображения
@@ -106,10 +115,6 @@ public:
 
 private:
     size_t width_;
-    /**
-     * @todo удалить лишний параметр
-     */
-    size_t height_;
     std::vector<Pixel> image_;
 };
 };  // namespace renderer
