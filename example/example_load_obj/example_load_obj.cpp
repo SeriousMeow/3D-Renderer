@@ -26,15 +26,6 @@ int main() {
     image = renderer.Render(scene, camera_id, std::move(image));
 
     // Записываем результат в файл
-    bmp::Image result_image{width, height};
-    for (size_t x = 0; x < width; ++x) {
-        for (size_t y = 0; y < height; ++y) {
-            bmp::Pixel* current_ouput_pixel = result_image.GetPixel(x, y);
-            current_ouput_pixel->r = image.GetPixel(x, y).r;
-            current_ouput_pixel->g = image.GetPixel(x, y).g;
-            current_ouput_pixel->b = image.GetPixel(x, y).b;
-        }
-    }
-    result_image.Save("example_load_obj.bmp");
+    SaveToBmp(image, "example_load_obj.bmp");
     return 0;
 }
