@@ -36,8 +36,6 @@ public:
         float b;
     };
 
-    Image() = delete;
-
     /**
      * @brief Создание изображения
      *
