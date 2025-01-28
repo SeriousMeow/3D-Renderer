@@ -140,7 +140,7 @@ public:
      *
      * @return Существует ли объект
      */
-    bool IsObjectExists(const ObjectId id) const;
+    bool HasObject(const ObjectId id) const;
 
     /**
      * @brief Проверка существования камеры
@@ -151,7 +151,7 @@ public:
      *
      * @return Существует ли камера
      */
-    bool IsCameraExists(const CameraId id) const;
+    bool HasCamera(const CameraId id) const;
 
     /**
      * @brief Итератор объектов

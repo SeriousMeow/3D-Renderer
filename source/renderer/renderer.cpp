@@ -19,7 +19,7 @@ renderer::Image&& renderer::Renderer::Render(const Scene& scene, const Scene::Ca
         assert((focal_length >= 0.1) and "Render: focal_length должен быть не меньше 0.1");
         assert((focal_length <= 10.0) and "Render: focal_length должен быть не больше 10.0");
 
-        assert((scene.IsCameraExists(camera_id)) and "Render: камера должна принадлежать сцене");
+        assert((scene.HasCamera(camera_id)) and "Render: камера должна принадлежать сцене");
     }
     if (image.GetWidth() != parameters_.width or image.GetHeight() != parameters_.height or
         fov_x != parameters_.fov_x or focal_length != parameters_.focal_length) {

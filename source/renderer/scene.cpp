@@ -22,36 +22,36 @@ renderer::Scene::ObjectsIterator renderer::Scene::ObjectsEnd() const {
 
 renderer::Matrix renderer::Scene::GetObjectMatrix(const ObjectId id) const {
     {
-        assert(IsObjectExists(id) and "GetObjectMatrix: объекта с переданным ID не существует");
+        assert(HasObject(id) and "GetObjectMatrix: объекта с переданным ID не существует");
     }
     return objects_[id].object_to_scene;
 }
 
 renderer::Matrix renderer::Scene::GetCameraMatrix(const CameraId id) const {
     {
-        assert(IsCameraExists(id) and "GetCameraMatrix: камеры с переданным ID не существует");
+        assert(HasCamera(id) and "GetCameraMatrix: камеры с переданным ID не существует");
     }
     return cameras_[id];
 }
 
 void renderer::Scene::SetObjectMatrix(const ObjectId id, const Matrix& new_matrix) {
     {
-        assert(IsObjectExists(id) and "SetObjectMatrix: объекта с переданным ID не существует");
+        assert(HasObject(id) and "SetObjectMatrix: объекта с переданным ID не существует");
     }
     objects_[id].object_to_scene = new_matrix;
 }
 
 void renderer::Scene::SetCameraMatrix(const CameraId id, const Matrix& new_matrix) {
     {
-        assert(IsCameraExists(id) and "SetCameraMatrix: камеры с переданным ID не существует");
+        assert(HasCamera(id) and "SetCameraMatrix: камеры с переданным ID не существует");
     }
     cameras_[id] = new_matrix;
 }
 
-bool renderer::Scene::IsObjectExists(const ObjectId id) const {
+bool renderer::Scene::HasObject(const ObjectId id) const {
     return (0 <= id and id < objects_.size());
 }
 
-bool renderer::Scene::IsCameraExists(const CameraId id) const {
+bool renderer::Scene::HasCamera(const CameraId id) const {
     return (0 <= id and id < objects_.size());
 }
