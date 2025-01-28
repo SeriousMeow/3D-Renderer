@@ -41,6 +41,14 @@ size_t renderer::Image::GetHeight() const {
 
 void renderer::Image::SetPixel(const size_t x, const size_t y,
                                const renderer::Image::Pixel& new_pixel) {
+    {
+        assert((0 <= new_pixel.r and new_pixel.r <= 1) and
+               "SetPixel: компонента r пикселя должна лежать в диапазоне от 0 до 1");
+        assert((0 <= new_pixel.g and new_pixel.g <= 1) and
+               "SetPixel: компонента g пикселя должна лежать в диапазоне от 0 до 1");
+        assert((0 <= new_pixel.b and new_pixel.b <= 1) and
+               "SetPixel: компонента b пикселя должна лежать в диапазоне от 0 до 1");
+    }
     image_[x + y * width_] = new_pixel;
 }
 
