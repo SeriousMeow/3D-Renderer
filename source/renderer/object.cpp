@@ -1,20 +1,23 @@
 #include <renderer/object.hpp>
 
-renderer::Object::Object(const std::vector<Triangle>& triangles) : triangles_{triangles} {
+namespace renderer {
+
+Object::Object(const std::vector<Triangle>& triangles) : triangles_{triangles} {
 }
 
-renderer::Object::Iterator renderer::Object::Begin() {
+Object::Iterator Object::Begin() {
     return triangles_.begin();
 }
 
-renderer::Object::Iterator renderer::Object::End() {
+Object::Iterator Object::End() {
     return triangles_.end();
 }
 
-renderer::Object::ConstIterator renderer::Object::Begin() const {
+Object::ConstIterator Object::Begin() const {
     return triangles_.begin();
 }
 
-renderer::Object::ConstIterator renderer::Object::End() const {
+Object::ConstIterator Object::End() const {
     return triangles_.end();
 }
+}  // namespace renderer

@@ -3,7 +3,9 @@
 #include <fstream>
 #include <sstream>
 
-renderer::Object renderer::utils::LoadObjFile(const std::string& path) {
+namespace renderer::utils {
+
+Object LoadObjFile(const std::string& path) {
     std::ifstream input{path};
     if (not input.is_open()) {
         throw std::runtime_error{"LoadObjFile: не удалось открыть файл"};
@@ -19,13 +21,13 @@ renderer::Object renderer::utils::LoadObjFile(const std::string& path) {
         s << line;
         if (line[0] == 'v') {
             char _;
-            renderer::Point new_point;
+            Point new_point;
             s >> _ >> new_point.x >> new_point.y >> new_point.z;
             points.push_back(new_point);
         }
         if (line[0] == 'f') {
             char _;
-            renderer::Triangle new_triangle;
+            Triangle new_triangle;
             size_t index;
             s >> _;
             for (size_t i = 0; i < 3; ++i) {
@@ -38,3 +40,4 @@ renderer::Object renderer::utils::LoadObjFile(const std::string& path) {
     input.close();
     return Object{triangles};
 }
+}  // namespace renderer::utils

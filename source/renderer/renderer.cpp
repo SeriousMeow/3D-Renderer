@@ -3,9 +3,10 @@
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-renderer::Image&& renderer::Renderer::Render(const Scene& scene, const Scene::CameraId camera_id,
-                                             Image&& image, const float fov_x,
-                                             const float focal_length) {
+namespace renderer {
+
+Image&& Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image,
+                         const float fov_x, const float focal_length) {
     {
         assert((image.GetWidth() != 0) and
                "Render: ширина переданного изображения не может быть 0");
@@ -72,7 +73,7 @@ renderer::Image&& renderer::Renderer::Render(const Scene& scene, const Scene::Ca
     return std::move(image);
 }
 
-void renderer::Renderer::DrawLine(Image& image, const Point& start, const Point& end) {
+void Renderer::DrawLine(Image& image, const Point& start, const Point& end) {
     // DDA-Line
     const size_t half_width = parameters_.width / 2;
     const size_t half_height = parameters_.height / 2;
@@ -113,8 +114,8 @@ void renderer::Renderer::DrawLine(Image& image, const Point& start, const Point&
     }
 }
 
-void renderer::Renderer::Init(const size_t width, const size_t height, const float focal_length,
-                              const float fov_x) {
+void Renderer::Init(const size_t width, const size_t height, const float focal_length,
+                    const float fov_x) {
     {
         assert((width != 0) and "Init: ширина переданного изображения не может быть 0");
         assert((height != 0) and "Init: высота переданного изображения не может быть 0");
@@ -140,3 +141,4 @@ void renderer::Renderer::Init(const size_t width, const size_t height, const flo
 
     parameters_.camera_to_clip = glm::infinitePerspective(fov_y, aspect_ratio, focal_length);
 }
+}  // namespace renderer
