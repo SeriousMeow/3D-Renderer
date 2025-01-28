@@ -111,7 +111,7 @@ public:
      *
      * @return Значение пикселя в позиции
      */
-    Pixel GetPixel(const size_t x, const size_t y);
+    Pixel GetPixel(const size_t x, const size_t y) const;
 
 private:
     size_t width_;

@@ -44,6 +44,6 @@ void renderer::Image::SetPixel(const size_t x, const size_t y,
     image_[x + y * width_] = new_pixel;
 }
 
-renderer::Image::Pixel renderer::Image::GetPixel(const size_t x, const size_t y) {
+renderer::Image::Pixel renderer::Image::GetPixel(const size_t x, const size_t y) const {
     return image_[x + y * width_];
 }
