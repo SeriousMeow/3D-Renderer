@@ -15,7 +15,6 @@ include(cmake/variables.cmake)
 
 include(cmake/external_libs.cmake)
 
-
 # ---- Declare library ----
 
 add_library(Renderer_Renderer)
@@ -41,7 +40,7 @@ target_include_directories(Renderer_Renderer PRIVATE ${glm_SOURCE_DIR})
 
 target_compile_features(Renderer_Renderer PUBLIC cxx_std_20)
 
-# ---- Add sources
+# ---- Add sources ----
 
 add_subdirectory(source)
 

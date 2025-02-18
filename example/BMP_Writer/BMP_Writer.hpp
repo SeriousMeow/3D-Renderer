@@ -17,6 +17,6 @@
  * @param[in] path Путь для сохранения
  *
  * @bug Может не работать для систем с big endian
- * @todo Сделать универсальную работу с endianess
+ * @todo Сделать универсальную работу с endianness
  */
 void SaveToBmp(const renderer::Image& image, const std::string& path);
