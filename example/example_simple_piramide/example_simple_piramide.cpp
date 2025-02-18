@@ -34,11 +34,11 @@ int main() {
     renderer::Renderer renderer;
 
     // Параметры
-    const size_t width = 1280;
-    const size_t height = 720;
+    constexpr size_t kWidth = 1280;
+    constexpr size_t kHeight = 720;
 
     // Создаем изображение и рендерим сцену
-    renderer::Image image{renderer::Width{width}, renderer::Height{height}};
+    renderer::Image image{renderer::Width{kWidth}, renderer::Height{kHeight}};
     image = renderer.Render(scene, camera_id, std::move(image));
 
     // Записываем результат в файл

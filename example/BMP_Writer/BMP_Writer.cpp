@@ -4,24 +4,22 @@
 #include <cstdint>
 #include <fstream>
 
+namespace {
 /**
  * @brief Константы для создания BMP файла
  */
-namespace {
-const uint16_t kFileType = 0x4D42;
-const uint16_t kBitCount = 24;
-const uint8_t kRowPadding = 4;
-const uint32_t kRedMask = 0xFF0000;
-const uint32_t kGreenMask = 0x00FF00;
-const uint32_t kBlueMask = 0x0000FF;
-const uint32_t kBitsInByte = 8;
-const uint32_t kCompressionTypeUncopressed = 0;
-}  // namespace
+constexpr uint16_t kFileType = 0x4D42;
+constexpr uint16_t kBitCount = 24;
+constexpr uint8_t kRowPadding = 4;
+constexpr uint32_t kRedMask = 0xFF0000;
+constexpr uint32_t kGreenMask = 0x00FF00;
+constexpr uint32_t kBlueMask = 0x0000FF;
+constexpr uint32_t kBitsInByte = 8;
+constexpr uint32_t kCompressionTypeUncopressed = 0;
 
 /**
  * @brief Заголовки BMP файлов
  */
-namespace {
 #pragma pack(push, 1)
 struct BMPFileHeader {
     uint16_t file_type{kFileType};
@@ -47,12 +45,10 @@ struct BMPInfoHeader {
     uint32_t colors_important{0};
 };
 #pragma pack(pop)
-}  // namespace
 
 /**
- * @brief Вспомогательные функции
+ * @brief Конвертация пикселя в битовое представление
  */
-namespace {
 uint32_t PixelToBits(const renderer::Image::Pixel& pixel) {
     uint32_t bits{0};
     int32_t bits_per_channel = kBitCount / 3;
