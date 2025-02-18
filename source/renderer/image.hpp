@@ -47,34 +47,6 @@ public:
     Image(const Width width, const Height height);
 
     /**
-     * @brief Создание изображения
-     *
-     * @param[in] other Изображение для копирования
-     */
-    Image(const Image& other);
-
-    /**
-     * @brief Создание изображения
-     *
-     * @param[in] other Изображение для перемещения
-     */
-    Image(Image&& other);
-
-    /**
-     * @brief Оператор присвоения
-     *
-     * @param[in] other Изображение для копирования
-     */
-    Image& operator=(const Image& other);
-
-    /**
-     * @brief Оператор присвоения
-     *
-     * @param[in] other Изображение для перемещения
-     */
-    Image& operator=(Image&& other);
-
-    /**
      * @brief Получение ширины изображения
      *
      * @return Ширина изображения

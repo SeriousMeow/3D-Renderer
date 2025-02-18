@@ -12,26 +12,6 @@ Image::Image(const Width width, const Height height) : width_{width} {
     image_.resize(width_ * static_cast<size_t>(height));
 }
 
-Image::Image(const Image& other) : width_{other.width_}, image_{other.image_} {
-}
-
-Image::Image(Image&& other) : width_{std::move(other.width_)}, image_{std::move(other.image_)} {
-}
-
-Image& renderer::Image::operator=(const Image& other) {
-    width_ = other.width_;
-    image_ = other.image_;
-    return *this;
-}
-
-Image& renderer::Image::operator=(Image&& other) {
-    if (this != &other) {
-        width_ = std::move(other.width_);
-        image_ = std::move(other.image_);
-    }
-    return *this;
-}
-
 size_t Image::GetWidth() const {
     return width_;
 }

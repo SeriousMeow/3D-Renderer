@@ -5,8 +5,8 @@
 
 namespace renderer {
 
-Image&& Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image,
-                         const float fov_x, const float focal_length) {
+Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image,
+                       const float fov_x, const float focal_length) {
     {
         assert((image.GetWidth() != 0) and
                "Render: ширина переданного изображения не может быть 0");
@@ -70,7 +70,7 @@ Image&& Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Im
             DrawLine(image, Point{vertices[2]}, Point{vertices[0]});
         }
     }
-    return std::move(image);
+    return image;
 }
 
 void Renderer::DrawLine(Image& image, const Point& start, const Point& end) {

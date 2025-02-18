@@ -36,8 +36,8 @@ public:
      *
      * @return Срендеренное изображение
      */
-    Image&& Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image,
-                   const float fov_x = 90.0, const float focal_length = 1.0);
+    Image Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image,
+                 const float fov_x = 90.0, const float focal_length = 1.0);
 
 private:
     /**
