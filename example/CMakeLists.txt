@@ -12,15 +12,19 @@ endif()
 add_custom_target(run-examples)
 
 function(add_example NAME)
-  add_executable("${NAME}" "${NAME}.cpp" "${CMAKE_SOURCE_DIR}/example/BMP_Writer/BMP_Writer.cpp")
-  target_include_directories( "${NAME}" PRIVATE BMP_Writer)
+  add_executable(
+    "${NAME}" "${NAME}.cpp"
+              "${CMAKE_SOURCE_DIR}/example/BMP_Writer/BMP_Writer.cpp")
+  target_include_directories("${NAME}" PRIVATE BMP_Writer)
   target_link_libraries("${NAME}" PRIVATE Renderer::Renderer)
   target_compile_features("${NAME}" PRIVATE cxx_std_20)
-  add_custom_target("run_${NAME}" COMMAND "${NAME}" VERBATIM)
+  add_custom_target(
+    "run_${NAME}"
+    COMMAND "${NAME}"
+    VERBATIM)
   add_dependencies("run_${NAME}" "${NAME}")
   add_dependencies(run-examples "run_${NAME}")
 endfunction()
-
 
 add_subdirectory(example_simple_piramide)
 add_subdirectory(example_load_obj)

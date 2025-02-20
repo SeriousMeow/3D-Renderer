@@ -7,13 +7,12 @@ endif()
 
 include(FetchContent)
 FetchContent_Declare(
-    mcss URL
-    https://github.com/friendlyanon/m.css/releases/download/release-1/mcss.zip
-    URL_MD5 00cd2757ebafb9bcba7f5d399b3bec7f
-    SOURCE_DIR "${PROJECT_BINARY_DIR}/mcss"
-    UPDATE_DISCONNECTED YES
-    ${extract_timestamps}
-)
+  mcss
+  URL https://github.com/friendlyanon/m.css/releases/download/release-1/mcss.zip
+  URL_MD5 00cd2757ebafb9bcba7f5d399b3bec7f
+  SOURCE_DIR "${PROJECT_BINARY_DIR}/mcss"
+  UPDATE_DISCONNECTED YES
+  ${extract_timestamps})
 FetchContent_MakeAvailable(mcss)
 
 find_package(Python3 3.6 REQUIRED)
@@ -21,33 +20,28 @@ find_package(Python3 3.6 REQUIRED)
 # ---- Developer mode parameters ----
 
 if(Renderer_DEVELOPER_MODE)
-    set(DOXYGEN_EXTRACT_ALL YES)
-    set(DOXYGEN_EXTRACT_PRIVATE YES)
-    set(DOXYGEN_EXTRACT_STATIC YES)
-    set(DOXYGEN_EXTRACT_LOCAL_METHODS YES)
-    set(DOXYGEN_GENERATE_TODOLIST YES)
-    set(DOXYGEN_GENERATE_TESTLIST YES)
-    set(DOXYGEN_GENERATE_BUGLIST YES)
-
-    set(MCSS_DEV_MENU "('Developer menu', 'todo', [('TODO', 'todo')])")
+  set(DOXYGEN_EXTRACT_ALL YES)
+  set(DOXYGEN_EXTRACT_PRIVATE YES)
+  set(DOXYGEN_EXTRACT_STATIC YES)
+  set(DOXYGEN_EXTRACT_LOCAL_METHODS YES)
+  set(DOXYGEN_GENERATE_TODOLIST YES)
+  set(DOXYGEN_GENERATE_TESTLIST YES)
+  set(DOXYGEN_GENERATE_BUGLIST YES)
 else()
-    set(DOXYGEN_EXTRACT_ALL NO)
-    set(DOXYGEN_EXTRACT_PRIVATE NO)
-    set(DOXYGEN_EXTRACT_STATIC NO)
-    set(DOXYGEN_EXTRACT_LOCAL_METHODS NO)
-    set(DOXYGEN_GENERATE_TODOLIST NO)
-    set(DOXYGEN_GENERATE_TESTLIST NO)
-    set(DOXYGEN_GENERATE_BUGLIST NO)
-
-    set(MCSS_DEV_MENU  "")
+  set(DOXYGEN_EXTRACT_ALL NO)
+  set(DOXYGEN_EXTRACT_PRIVATE NO)
+  set(DOXYGEN_EXTRACT_STATIC NO)
+  set(DOXYGEN_EXTRACT_LOCAL_METHODS NO)
+  set(DOXYGEN_GENERATE_TODOLIST NO)
+  set(DOXYGEN_GENERATE_TESTLIST NO)
+  set(DOXYGEN_GENERATE_BUGLIST NO)
 endif()
 
 # ---- Declare documentation target ----
 
-set(
-    DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/docs"
-    CACHE PATH "Path for the generated Doxygen documentation"
-)
+set(DOXYGEN_OUTPUT_DIRECTORY
+    "${PROJECT_BINARY_DIR}/docs"
+    CACHE PATH "Path for the generated Doxygen documentation")
 
 set(working_dir "${PROJECT_BINARY_DIR}/docs")
 
@@ -59,12 +53,10 @@ set(mcss_script "${mcss_SOURCE_DIR}/documentation/doxygen.py")
 set(config "${working_dir}/conf.py")
 
 add_custom_target(
-    docs
-    COMMAND "${CMAKE_COMMAND}" -E remove_directory
-    "${DOXYGEN_OUTPUT_DIRECTORY}/html"
-    "${DOXYGEN_OUTPUT_DIRECTORY}/xml"
-    COMMAND "${Python3_EXECUTABLE}" "${mcss_script}" "${config}"
-    COMMENT "Building documentation using Doxygen and m.css"
-    WORKING_DIRECTORY "${working_dir}"
-    VERBATIM
-)
+  docs
+  COMMAND "${CMAKE_COMMAND}" -E remove_directory
+          "${DOXYGEN_OUTPUT_DIRECTORY}/html" "${DOXYGEN_OUTPUT_DIRECTORY}/xml"
+  COMMAND "${Python3_EXECUTABLE}" "${mcss_script}" "${config}"
+  COMMENT "Building documentation using Doxygen and m.css"
+  WORKING_DIRECTORY "${working_dir}"
+  VERBATIM)
