@@ -31,21 +31,24 @@ public:
      * @param[in] image Изображение
      *
      * @return Срендеренное изображение
+     *
+     * @note Если ширина или высота изображения равны 0, то оно возвращается без изменений
      */
     Image Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image);
 
 private:
     /**
-     * @brief Инициализация переменных рендеринга
+     * @brief Подготовка внутренних параметров
      *
-     * Инициализирует внутренние переменные
+     * Подготавливает внутреннее состояние для отрисовки нового кадра
      *
      * @param[in] width Ширина выходного изображения, должна быть больше 0
      * @param[in] height Высота выходного изображения, должна быть больше 0
-     * @param[in] focal_length Расстояние от камеры до экрана, должно быть больше 0.0
-     * @param[in] fov_x Горизонтальное поле зрения в градусах, должно быть больше 0.0 и меньше 360.0
+     * @param[in] focal_length Расстояние от камеры до экрана
+     * @param[in] fov_x Горизонтальное поле зрения в градусах
      */
-    void Init(const size_t width, const size_t height, const float focal_length, const float fov_x);
+    void UpdateInternalState(const size_t width, const size_t height, const float focal_length,
+                             const float fov_x);
 
     /**
      * @brief Рисование отрезка
@@ -60,9 +63,6 @@ private:
 
     struct Parameters {
         size_t width{0};
-        size_t height{0};
-        float fov_x{0};
-        float focal_length{0};
         float x_scale{0};
         float y_scale{0};
         Matrix camera_to_clip;
