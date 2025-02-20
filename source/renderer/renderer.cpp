@@ -5,32 +5,23 @@
 
 namespace renderer {
 
-Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image,
-                       const float fov_x, const float focal_length) {
+Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image) {
     {
         assert((image.GetWidth() != 0) and
                "Render: ширина переданного изображения не может быть 0");
         assert((image.GetHeight() != 0) and
                "Render: высота переданного изображения не может быть 0");
 
-        assert((fov_x > 0.0 + glm::epsilon<float>()) and "Render: fov_x должен быть больше 0.0");
-        assert((fov_x < 360.0 - glm::epsilon<float>()) and
-               "Render: fov_x должен быть меньше 360.0");
-
-        assert((focal_length >= 0.1) and "Render: focal_length должен быть не меньше 0.1");
-        assert((focal_length <= 10.0) and "Render: focal_length должен быть не больше 10.0");
-
         assert((scene.HasCamera(camera_id)) and "Render: камера должна принадлежать сцене");
     }
-    if (image.GetWidth() != parameters_.width or image.GetHeight() != parameters_.height or
-        fov_x != parameters_.fov_x or focal_length != parameters_.focal_length) {
-        Init(image.GetWidth(), image.GetHeight(), focal_length, fov_x);
-    }
+    Init(image.GetWidth(), image.GetHeight(), scene.AccessCamera(camera_id).GetFocalLenght(),
+         scene.AccessCamera(camera_id).GetFovX());
     z_buffer_.assign(parameters_.width * parameters_.height,
                      std::numeric_limits<float>::infinity());
     for (Scene::ObjectsIterator objects_it = scene.ObjectsBegin(); objects_it != scene.ObjectsEnd();
          ++objects_it) {
-        Matrix object_to_camera = scene.GetCameraMatrix(camera_id) * (*objects_it).object_to_scene;
+        Matrix object_to_camera =
+            scene.AccessCamera(camera_id).AccessMatrix() * objects_it->object_to_scene;
         const Object& object = (*objects_it).object;
 
         for (Object::ConstIterator triangle_it = object.Begin(); triangle_it != object.End();

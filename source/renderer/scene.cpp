@@ -8,9 +8,9 @@ Scene::ObjectId Scene::PushObject(const Object& object, const Matrix& matrix) {
     return id;
 }
 
-Scene::CameraId Scene::PushCamera(const Matrix& matrix) {
+Scene::CameraId Scene::PushCamera(const Camera& camera) {
     CameraId id = cameras_.size();
-    cameras_.push_back(matrix);
+    cameras_.push_back(camera);
     return id;
 }
 
@@ -29,13 +29,6 @@ Matrix Scene::GetObjectMatrix(const ObjectId id) const {
     return objects_[id].object_to_scene;
 }
 
-Matrix Scene::GetCameraMatrix(const CameraId id) const {
-    {
-        assert(HasCamera(id) and "GetCameraMatrix: камеры с переданным ID не существует");
-    }
-    return cameras_[id];
-}
-
 void Scene::SetObjectMatrix(const ObjectId id, const Matrix& new_matrix) {
     {
         assert(HasObject(id) and "SetObjectMatrix: объекта с переданным ID не существует");
@@ -43,11 +36,18 @@ void Scene::SetObjectMatrix(const ObjectId id, const Matrix& new_matrix) {
     objects_[id].object_to_scene = new_matrix;
 }
 
-void Scene::SetCameraMatrix(const CameraId id, const Matrix& new_matrix) {
+Camera& Scene::AccessCamera(const CameraId id) {
     {
-        assert(HasCamera(id) and "SetCameraMatrix: камеры с переданным ID не существует");
+        assert(HasCamera(id) and "GetCamera: камеры с переданным ID не существует");
     }
-    cameras_[id] = new_matrix;
+    return cameras_[id];
+}
+
+const Camera& Scene::AccessCamera(const CameraId id) const {
+    {
+        assert(HasCamera(id) and "GetCamera: камеры с переданным ID не существует");
+    }
+    return cameras_[id];
 }
 
 bool Scene::HasObject(const ObjectId id) const {
@@ -55,6 +55,6 @@ bool Scene::HasObject(const ObjectId id) const {
 }
 
 bool Scene::HasCamera(const CameraId id) const {
-    return (0 <= id and id < objects_.size());
+    return (0 <= id and id < cameras_.size());
 }
 }  // namespace renderer

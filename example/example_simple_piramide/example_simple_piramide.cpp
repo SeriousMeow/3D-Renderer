@@ -28,7 +28,8 @@ int main() {
     // Создаем камеру в точке (-1, -1, 1), смотрящую на точку (0.5, 0.5, 0.5)
     renderer::Matrix camera_matrix =
         renderer::transforms::CameraLookAtPoint({-1, -1, 1}, {0.5, 0.5, 0.5});
-    renderer::Scene::CameraId camera_id = scene.PushCamera(camera_matrix);
+    renderer::Camera camera{camera_matrix};
+    renderer::Scene::CameraId camera_id = scene.PushCamera(camera);
 
     // Создаем рендерер
     renderer::Renderer renderer;

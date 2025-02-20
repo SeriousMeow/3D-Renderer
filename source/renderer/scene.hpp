@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "renderer/camera.hpp"
 #include "renderer/object.hpp"
 
 namespace renderer {
@@ -56,11 +57,6 @@ public:
     using ObjectsIterator = std::vector<SceneObject>::const_iterator;
 
     /**
-     * @brief Создание пустой сцены
-     */
-    Scene() = default;
-
-    /**
      * @brief Добавление объекта в сцену
      *
      * Копирует переданный объект в контейнер. Переданная матрица является матрицей перехода из
@@ -83,7 +79,7 @@ public:
      *
      * @return ID добавленной камеры
      */
-    CameraId PushCamera(const Matrix& matrix);
+    CameraId PushCamera(const Camera& camera);
 
     /**
      * @brief Получение матрицы перехода объекта
@@ -98,18 +94,6 @@ public:
     Matrix GetObjectMatrix(const ObjectId id) const;
 
     /**
-     * @brief Получение матрицы перехода камеры
-     *
-     * Возвращает матрицу перехода камеры с ID, равным id. Требуется, чтобы камера с таким id
-     * существовала
-     *
-     * @param[in] id ID камеры
-     *
-     * @return Матрица перехода камеры
-     */
-    Matrix GetCameraMatrix(const CameraId id) const;
-
-    /**
      * @brief Установка новой матрицы перехода объекта
      *
      * Устанавливает новую матрицу перехода объекта с ID, равным id. Требуется, чтобы объект с таким
@@ -121,15 +105,28 @@ public:
     void SetObjectMatrix(const ObjectId id, const Matrix& new_matrix);
 
     /**
-     * @brief Установка новой матрицы перехода камеры
+     * @brief Получение доступа к камере
      *
-     * Устанавливает новую матрицу перехода камеры с ID, равным id. Требуется, чтобы камера с таким
-     * id существовала
+     * Возвращает ссылку на камеру в сцене с ID, равным id. Требуется, чтобы камера с таким id
+     * существовала
      *
-     * @param[in] id ID объекта
-     * @param[in] new_matrix Новая матрица перехода
+     * @param[in] id ID камеры
+     *
+     * @return Ссылка на камеру
      */
-    void SetCameraMatrix(const CameraId id, const Matrix& new_matrix);
+    Camera& AccessCamera(const CameraId id);
+
+    /**
+     * @brief Получение доступа к камере
+     *
+     * Возвращает константную ссылку на камеру в сцене с ID, равным id. Требуется, чтобы камера с
+     * таким id существовала
+     *
+     * @param[in] id ID камеры
+     *
+     * @return Константная ссылка на камеру
+     */
+    const Camera& AccessCamera(const CameraId id) const;
 
     /**
      * @brief Проверка существования объекта
@@ -169,7 +166,7 @@ public:
 
 private:
     std::vector<SceneObject> objects_;
-    std::vector<Matrix> cameras_;
+    std::vector<Camera> cameras_;
 };
 
 };  // namespace renderer
