@@ -5,10 +5,6 @@
 namespace renderer {
 
 Image::Image(const Width width, const Height height) : width_{width} {
-    {
-        assert((width > 0) and "Image: ширина должна быть больше 0");
-        assert((height > 0) and "Image: высота должна быть больше 0");
-    }
     image_.resize(width_ * static_cast<size_t>(height));
 }
 
@@ -17,22 +13,26 @@ size_t Image::GetWidth() const {
 }
 
 size_t Image::GetHeight() const {
+    if (width_ == 0) {
+        return image_.size();
+    }
     return image_.size() / width_;
 }
 
-void Image::SetPixel(const size_t x, const size_t y, const Pixel& new_pixel) {
+Image::Pixel& Image::AccessPixel(const size_t x, const size_t y) {
     {
-        assert((0 <= new_pixel.r and new_pixel.r <= 1) and
-               "SetPixel: компонента r пикселя должна лежать в диапазоне от 0 до 1");
-        assert((0 <= new_pixel.g and new_pixel.g <= 1) and
-               "SetPixel: компонента g пикселя должна лежать в диапазоне от 0 до 1");
-        assert((0 <= new_pixel.b and new_pixel.b <= 1) and
-               "SetPixel: компонента b пикселя должна лежать в диапазоне от 0 до 1");
+        assert((x < GetWidth()) and "AccessPixel: координата x должна быть меньше ширины");
+        assert((y < GetHeight()) and "AccessPixel: координата y должна быть меньше высоты");
     }
-    image_[x + y * width_] = new_pixel;
-}
-
-Image::Pixel Image::GetPixel(const size_t x, const size_t y) const {
     return image_[x + y * width_];
 }
+
+const Image::Pixel& Image::AccessPixel(const size_t x, const size_t y) const {
+    {
+        assert((x < GetWidth()) and "AccessPixel: координата x должна быть меньше ширины");
+        assert((y < GetHeight()) and "AccessPixel: координата y должна быть меньше высоты");
+    }
+    return image_[x + y * width_];
+}
+
 }  // namespace renderer

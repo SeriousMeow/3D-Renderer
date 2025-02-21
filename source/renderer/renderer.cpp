@@ -104,7 +104,7 @@ void Renderer::DrawLine(Image& image, const Point& start, const Point& end) {
             continue;
         }
         z_buffer_[screen_y * parameters_.width + screen_x] = current_point.z;
-        image.SetPixel(screen_x, screen_y, {.r = 1.0, .g = 1.0, .b = 1.0});
+        image.AccessPixel(screen_x, screen_y) = {.r = 255, .g = 255, .b = 255};
     }
 }
 

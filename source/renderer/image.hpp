@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <vector>
 
 namespace renderer {
@@ -28,12 +29,12 @@ public:
     /**
      * @brief Пиксель
      *
-     * Каждая компонента цвета имеет диапазон от 0.0 до 1.0
+     * Хранит пиксель в формате RGB24 (8 бит на цвет)
      */
     struct Pixel {
-        float r;
-        float g;
-        float b;
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
     };
 
     /**
@@ -41,8 +42,6 @@ public:
      *
      * @param[in] width Ширина изображения
      * @param[in] height Высота изображения
-     *
-     * @todo Поставить защиту на ширину и высоту
      */
     Image(const Width width, const Height height);
 
@@ -61,27 +60,49 @@ public:
     size_t GetHeight() const;
 
     /**
-     * @brief Изменение пикселя
+     * @brief Получение доступа к пикселю
      *
-     * Задает новое значение для пикселя с координатами (x, y)
+     * Возвращает ссылку на пиксель с координатами (x, y)
      *
      * @param[in] x Столбец
-     * @param[in] y Строка
-     * @param[in] new_pixel Новое значение пикселя
+     * @param[in] y Столбец
+     *
+     * @return Ссылка на пиксель
      */
-    void SetPixel(const size_t x, const size_t y, const Pixel& new_pixel);
+    Pixel& AccessPixel(const size_t x, const size_t y);
 
     /**
-     * @brief Получение пикселя
+     * @brief Получение доступа к пикселю
      *
-     * Возвращает значение пикселя с координатами (x, y)
+     * Возвращает константуню ссылку на пиксель с координатами (x, y)
      *
      * @param[in] x Столбец
-     * @param[in] y Строка
+     * @param[in] y Столбец
      *
-     * @return Значение пикселя в позиции
+     * @return Константная cсылка на пиксель
      */
-    Pixel GetPixel(const size_t x, const size_t y) const;
+    const Pixel& AccessPixel(const size_t x, const size_t y) const;
+
+    /**
+     * @brief Получение доступа к пикселям
+     *
+     * Возвращает указатель на начало внутреннего массива с пикселями. Строки изображения лежат
+     * подряд в порядке сверху вниз, пиксели в строке лежат подряд слева направо
+     *
+     * @return Указатель на начало массива
+     */
+    Pixel* AccessData();
+
+    /**
+     * @brief Получение доступа к пикселям
+     *
+     * Возвращает указатель на начало внутреннего массива с пикселями. Строки изображения лежат
+     * подряд в порядке сверху вниз, пиксели в строке лежат подряд слева направо. Данные доступны
+     * только для чтения
+     *
+     * @return Указатель на начало массива
+     */
+    const Pixel* AccessData() const;
 
 private:
     size_t width_;
