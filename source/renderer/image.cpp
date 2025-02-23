@@ -35,4 +35,12 @@ const Image::Pixel& Image::AccessPixel(const size_t x, const size_t y) const {
     return image_[x + y * width_];
 }
 
+Image::Pixel* Image::AccessData() {
+    return image_.data();
+}
+
+const Image::Pixel* Image::AccessData() const {
+    return image_.data();
+}
+
 }  // namespace renderer
