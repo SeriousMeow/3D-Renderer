@@ -6,16 +6,15 @@
 namespace renderer {
 
 Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image) {
-    {
-        assert((image.GetWidth() != 0) and
-               "Render: ширина переданного изображения не может быть 0");
-        assert((image.GetHeight() != 0) and
-               "Render: высота переданного изображения не может быть 0");
-
-        assert((scene.HasCamera(camera_id)) and "Render: камера должна принадлежать сцене");
-    }
     if (image.GetWidth() != 0 and image.GetHeight() != 0) {
+        {
+            assert((image.GetWidth() != 0) and
+                   "Render: ширина переданного изображения не может быть 0");
+            assert((image.GetHeight() != 0) and
+                   "Render: высота переданного изображения не может быть 0");
 
+            assert((scene.HasCamera(camera_id)) and "Render: камера должна принадлежать сцене");
+        }
         UpdateInternalState(image.GetWidth(), image.GetHeight(),
                             scene.AccessCamera(camera_id).GetFocalLenght(),
                             scene.AccessCamera(camera_id).GetFovX());
