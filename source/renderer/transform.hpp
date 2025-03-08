@@ -121,30 +121,5 @@ Matrix RotateAboutAxisY(const float angle);
  */
 Matrix RotateAboutAxisZ(const float angle);
 
-/**
- * @brief Направление камеры на точку
- *
- * Создает матрицу для камеры, расположенной в точке camera_position и смотрящей в точку center
- *
- * @param[in] camera_position Положение камеры
- * @param[in] center Точка, в которую смотрит камера
- *
- * @return Матрица преобразования
- */
-Matrix CameraLookAtPoint(const Point& camera_position, const Point& center);
-
-/**
- * @brief Направление камеры в заданное направление
- *
- * Создает матрицу для камеры, расположенной в точке camera_position и смотрящей по направлению
- * direction
- *
- * @param[in] camera_position Положение камеры
- * @param[in] direction Направление взгляда
- *
- * @return Матрица преобразования
- */
-Matrix CameraLookAtDirection(const Point& camera_position, const Vector& direction);
-
 };  // namespace transforms
 };  // namespace renderer

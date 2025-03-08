@@ -16,13 +16,13 @@ Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Imag
             assert((scene.HasCamera(camera_id)) and "Render: камера должна принадлежать сцене");
         }
         UpdateInternalState(image.GetWidth(), image.GetHeight(),
-                            scene.AccessCamera(camera_id).GetFocalLenght(),
+                            scene.AccessCamera(camera_id).GetFocalLength(),
                             scene.AccessCamera(camera_id).GetFovX());
+        Matrix camera_view_matrix = scene.AccessCamera(camera_id).GetViewMatrix();
         for (Scene::ObjectsIterator objects_it = scene.ObjectsBegin();
              objects_it != scene.ObjectsEnd(); ++objects_it) {
-            Matrix object_to_camera =
-                scene.AccessCamera(camera_id).AccessMatrix() * objects_it->object_to_scene;
-            const Object& object = (*objects_it).object;
+            Matrix object_to_camera = camera_view_matrix * objects_it->object_to_scene;
+            const Object& object = objects_it->object;
 
             for (Object::ConstIterator triangle_it = object.Begin(); triangle_it != object.End();
                  ++triangle_it) {

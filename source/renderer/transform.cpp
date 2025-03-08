@@ -36,12 +36,4 @@ Matrix RotateAboutAxisZ(const float angle) {
     return RotateDegrees(angle, Vector{0, 0, 1});
 }
 
-Matrix CameraLookAtPoint(const Point& camera_position, const Point& center) {
-    return glm::lookAt(camera_position, center, Vector{0, 0, 1});
-}
-
-Matrix CameraLookAtDirection(const Point& camera_position, const Vector& direction) {
-    Point center = camera_position + direction;
-    return glm::lookAt(camera_position, center, Vector{0, 0, 1});
-}
 }  // namespace renderer::transforms

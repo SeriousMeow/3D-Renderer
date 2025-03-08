@@ -23,9 +23,8 @@ int main() {
     scene.PushObject(cube, renderer::transforms::Translate({2, 2, 0}) *
                                renderer::transforms::RotateAboutAxisZ(45));
 
-    // Создаем камеру в точке (3, -4, 2), смотрящую на точку (0, 0, 0)
-    renderer::Matrix camera_matrix = renderer::transforms::CameraLookAtPoint({3, -4, 2}, {0, 0, 0});
-    renderer::Camera camera{camera_matrix};
+    // Создаем камеру в точке (4, -4, 3) и направляем в сторону начала координат
+    renderer::Camera camera{renderer::Vector{4, -4, 3}, 135, -25};
     renderer::Scene::CameraId camera_id = scene.PushCamera(camera);
 
     // Создаем рендерер

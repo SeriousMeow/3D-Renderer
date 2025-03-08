@@ -6,8 +6,8 @@ int main() {
     // Создаем точки
     renderer::Point a = {0, 0, 0};
     renderer::Point b = {1, 0, 0};
-    renderer::Point c = {0, 1, 0};
-    renderer::Point d = {0, 0, 1};
+    renderer::Point c = {0, 1.5, 0};
+    renderer::Point d = {0, 0, 2};
 
     // Создаем грани-треугольники из точек. Наружней считается та сторона, относительно которой
     // точки перечисленны против часовой стрелки
@@ -25,10 +25,8 @@ int main() {
     renderer::Scene scene;
     scene.PushObject(piramide, renderer::transforms::kNoTransforms);
 
-    // Создаем камеру в точке (-1, -1, 1), смотрящую на точку (0.5, 0.5, 0.5)
-    renderer::Matrix camera_matrix =
-        renderer::transforms::CameraLookAtPoint({-1, -1, 1}, {0.5, 0.5, 0.5});
-    renderer::Camera camera{camera_matrix};
+    // Создаем камеру в точке (2, 2, 2) и направляем в сторону начала координат
+    renderer::Camera camera{renderer::Vector{2, 2, 2}, 225, -25};
     renderer::Scene::CameraId camera_id = scene.PushCamera(camera);
 
     // Создаем рендерер
