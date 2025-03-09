@@ -85,6 +85,42 @@ void Camera::SetFocalLength(const float new_focal_length) {
     focal_length_ = new_focal_length;
 }
 
+void Camera::AddYaw(const float yaw_offset) {
+    yaw_ += yaw_offset;
+    UpdateVectors();
+}
+
+void Camera::AddPitch(const float pitch_offset) {
+    pitch_ += pitch_offset;
+    if (pitch_ > 90.0) {
+        pitch_ = 90.0;
+    }
+    if (pitch_ < -90.0) {
+        pitch_ = -90.0;
+    }
+    UpdateVectors();
+}
+
+void Camera::Translate(const Vector& translate_vector) {
+    position_ += translate_vector;
+}
+
+void Camera::MoveForward(const float distance) {
+    position_ += front_ * distance;
+}
+
+void Camera::MoveRight(const float distance) {
+    position_ += right_ * distance;
+}
+
+void Camera::MoveUp(const float distance) {
+    position_ += up_ * distance;
+}
+
+void Camera::MoveWorldUp(const float distance) {
+    position_ += kWorldUp * distance;
+}
+
 void Camera::UpdateVectors() {
     Vector new_front;
     new_front.x = glm::cos(glm::radians(yaw_)) * glm::cos(glm::radians(pitch_));
