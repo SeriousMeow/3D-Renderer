@@ -6,9 +6,9 @@ int main() {
     // Загружаем объект из OBJ файла
     renderer::Object cube = renderer::utils::LoadObjFile("cube.obj");
 
-    // Создаем сцену и выставляем объект в начало координат
+    // Создаем сцену и добавляем объект, который по-умолчанию устанавливается в начало координат
     renderer::Scene scene;
-    scene.PushObject(cube, renderer::transforms::kNoTransforms);
+    scene.PushObject(cube);
 
     // Создаем камеру в точке (3, 3, 3) и направляем в сторону начала координат
     renderer::Camera camera{renderer::Vector{3, 3, 3}, 225, -35};

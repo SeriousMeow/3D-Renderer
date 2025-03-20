@@ -21,9 +21,9 @@ int main() {
     // Создаем объект из граней
     renderer::Object piramide{faces};
 
-    // Создаем сцену и выставляем объект в начало координат
+    // Создаем сцену и добавляем объект, который по-умолчанию устанавливается в начало координат
     renderer::Scene scene;
-    scene.PushObject(piramide, renderer::transforms::kNoTransforms);
+    scene.PushObject(piramide);
 
     // Создаем камеру в точке (2, 2, 2) и направляем в сторону начала координат
     renderer::Camera camera{renderer::Vector{2, 2, 2}, 225, -25};

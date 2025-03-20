@@ -19,14 +19,13 @@ Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Imag
                             scene.AccessCamera(camera_id).GetFocalLength(),
                             scene.AccessCamera(camera_id).GetFovX());
         Matrix camera_view_matrix = scene.AccessCamera(camera_id).GetViewMatrix();
-        for (Scene::ObjectsIterator objects_it = scene.ObjectsBegin();
-             objects_it != scene.ObjectsEnd(); ++objects_it) {
-            Matrix object_to_camera = camera_view_matrix * objects_it->object_to_scene;
-            const Object& object = objects_it->object;
+        const Object::FacetType* facets_storage = scene.AccessFacetsStorage();
+        for (auto objects_it = scene.ObjectsBegin(); objects_it != scene.ObjectsEnd();
+             ++objects_it) {
+            Matrix object_to_camera = camera_view_matrix * objects_it->GetObjectMatrix();
 
-            for (Object::ConstIterator triangle_it = object.Begin(); triangle_it != object.End();
-                 ++triangle_it) {
-                Triangle triangle = *triangle_it;
+            for (size_t triangle_index = 0; triangle_index < objects_it->Size(); ++triangle_index) {
+                Triangle triangle = facets_storage[objects_it->Begin() + triangle_index];
                 Point4 vertices[3];
                 // нормализуем координаты и переводим в координаты камеры
                 for (size_t i = 0; i < 3; ++i) {

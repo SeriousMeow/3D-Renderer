@@ -16,15 +16,16 @@ namespace renderer {
  */
 class Object {
 public:
-    using Iterator = std::vector<Triangle>::iterator;
-    using ConstIterator = std::vector<Triangle>::const_iterator;
+    using FacetType = Triangle;
+    using Iterator = std::vector<FacetType>::iterator;
+    using ConstIterator = std::vector<FacetType>::const_iterator;
 
     /**
      * @brief Конструктор из треугольников
      *
      * @param[in] triangles треугольники
      */
-    explicit Object(const std::vector<Triangle>& triangles);
+    explicit Object(const std::vector<FacetType>& triangles);
 
     /**
      * @brief Итератор начала контейнера
@@ -55,7 +56,7 @@ public:
     ConstIterator End() const;
 
 private:
-    std::vector<Triangle> triangles_;
+    std::vector<FacetType> triangles_;
 };
 
 };  // namespace renderer

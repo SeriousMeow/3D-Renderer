@@ -2,7 +2,7 @@
 
 namespace renderer {
 
-Object::Object(const std::vector<Triangle>& triangles) : triangles_{triangles} {
+Object::Object(const std::vector<FacetType>& triangles) : triangles_{triangles} {
 }
 
 Object::Iterator Object::Begin() {

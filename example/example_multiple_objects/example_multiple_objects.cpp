@@ -12,16 +12,16 @@ int main() {
     // Добавляем несколько объектов
 
     // Куб с центром (0, 0, 0)
-    scene.PushObject(cube, renderer::transforms::kNoTransforms);
+    scene.PushObject(cube);
 
     // Куб с центром (2, 2, 0)
-    scene.PushObject(cube, renderer::transforms::Translate(
-                               {-2, -2, 0}));  // принимает матрицу преобразования из объекта в
-                                               // сцену, поэтому противоположный вектор
+    renderer::Scene::ObjectId cube_2 = scene.PushObject(cube);
+    scene.AccessObject(cube_2).AccessPosition() = renderer::Point{2, 2, 0};
 
     // Куб с центром (-2, -2, 0), повернутый на 45 градусов относительно вертикали
-    scene.PushObject(cube, renderer::transforms::Translate({2, 2, 0}) *
-                               renderer::transforms::RotateAboutAxisZ(45));
+    renderer::Scene::ObjectId cube_3 = scene.PushObject(cube);
+    scene.AccessObject(cube_3).AccessPosition() = renderer::Point{-2, -2, 0};
+    scene.AccessObject(cube_3).AccessZAngle() = 45;
 
     // Создаем камеру в точке (4, -4, 3) и направляем в сторону начала координат
     renderer::Camera camera{renderer::Vector{4, -4, 3}, 135, -25};
