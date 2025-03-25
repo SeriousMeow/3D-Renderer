@@ -61,11 +61,40 @@ private:
      */
     void DrawLine(Image& image, const Point& start, const Point& end);
 
+    /**
+     * @brief Рисование треугольника
+     *
+     * Рисует переданный треугольник с учетом буффера глубины
+     *
+     * @param[out] image Изображение
+     * @param[in] triangle Треугольник
+     */
+    void DrawTriangle(Image& image, const Triangle& triangle);
+
+    /**
+     * @brief Обрезка треугольника относительно пирамиды зрения
+     *
+     * Обрезает переданный треугольник относительно пирамиды зрения. По указателю result должен быть
+     * массив на хотя бы 63 значения. После окончания работы по указателю start прописывается индекс
+     * в переданном массиве, начиная с которого идет результат обрезки, количество треугольников
+     * возвращается функцией. До индекса start находятся произвольные значения, после последнего
+     * треугольника результата данные не изменяются. Гарантируется, что функция модифицирует не
+     * больше 63 первых значений
+     *
+     * @param[in] triangle Треугольник для обрезки
+     * @param[out] result Массив с результатом работы
+     * @param[out] start Индекс начала результата в массиве
+     *
+     * @return Количество треугольников в результате
+     */
+    size_t ClipTriangle(const Triangle& triangle, Triangle* result, size_t* start);
+
     struct Parameters {
         size_t width{0};
         float x_scale{0};
         float y_scale{0};
         Matrix camera_to_clip;
+        Vector4 frustum_planes[5];
     };
     Parameters parameters_;
     std::vector<float> z_buffer_;
