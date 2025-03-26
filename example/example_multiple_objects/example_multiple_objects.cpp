@@ -36,7 +36,9 @@ int main() {
 
     // Создаем изображение и рендерим сцену
     renderer::Image image{renderer::Width{kWidth}, renderer::Height{kHeight}};
-    image = renderer.Render(scene, camera_id, std::move(image));
+    // Дополнительно дорисовываем ребра
+    image = renderer.Render(scene, camera_id, std::move(image),
+                            renderer::Renderer::DRAW_EDGES | renderer::Renderer::DRAW_FACETS);
 
     // Записываем результат в файл
     SaveToBmp(image, "example_multiple_objects.bmp");

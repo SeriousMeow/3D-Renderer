@@ -1,5 +1,6 @@
 #include "renderer/renderer.hpp"
 
+#include <glm/common.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -7,6 +8,21 @@
 namespace renderer {
 
 namespace {
+/**
+ * 2D точка
+ */
+using Point2 = glm::vec2;
+
+/**
+ * 2D вектор
+ */
+using Vector2 = glm::vec2;
+
+/**
+ * Малое значение
+ */
+constexpr float kEpsilon = glm::epsilon<float>();
+
 /**
  * @brief Пересечение прямой и плоскости
  *
@@ -25,7 +41,7 @@ float PlaneIntersection(const Vector4& plane, const Point& line_start,
                         const Vector& line_direction) {
     float denominator = glm::dot(plane, Vector4{line_direction, 0});
     {
-        assert((glm::epsilonNotEqual(denominator, 0.0f, glm::epsilon<float>())) and
+        assert((glm::epsilonNotEqual(denominator, 0.0f, kEpsilon)) and
                "PlaneIntersection: прямая и плоскость не должны быть параллельны");
     }
     return -glm::dot(plane, Vector4{line_start, 1}) / denominator;
@@ -132,9 +148,39 @@ size_t ClipTriangleAganistPlane(const Triangle& triangle, const Vector4& plane, 
     return 2;
 }
 
+/**
+ * @brief Вычисление барицентрических координат
+ *
+ * Вычисляет барицентрические координаты точки p относительно точек a, b, c в 2D
+ *
+ * @param[in] a Координатная точка
+ * @param[in] b Координатная точка
+ * @param[in] c Координатная точка
+ * @param[in] p Точка для вычисления координат
+ *
+ * @return Барицентрические координаты
+ */
+Vector Barycentric(const Point2& a, const Point2& b, const Point2& c, const Point2& p) {
+    Vector coordinates;
+    Vector2 v0 = b - a;
+    Vector2 v1 = c - a;
+    Vector2 v2 = p - a;
+    float d00 = glm::dot(v0, v0);
+    float d01 = glm::dot(v0, v1);
+    float d11 = glm::dot(v1, v1);
+    float d20 = glm::dot(v2, v0);
+    float d21 = glm::dot(v2, v1);
+    float denominator = d00 * d11 - d01 * d01;
+    coordinates.y = (d11 * d20 - d01 * d21) / denominator;
+    coordinates.z = (d00 * d21 - d01 * d20) / denominator;
+    coordinates.x = 1.0f - coordinates.y - coordinates.z;
+    return coordinates;
+}
+
 }  // namespace
 
-Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image) {
+Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image,
+                       const RenderFlags flags) {
     if (image.GetWidth() != 0 and image.GetHeight() != 0) {
         {
             assert((image.GetWidth() != 0) and
@@ -144,6 +190,7 @@ Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Imag
 
             assert((scene.HasCamera(camera_id)) and "Render: камера должна принадлежать сцене");
         }
+        flags_ = flags;
         UpdateInternalState(image.GetWidth(), image.GetHeight(),
                             scene.AccessCamera(camera_id).GetFocalLength(),
                             scene.AccessCamera(camera_id).GetFovX());
@@ -160,8 +207,7 @@ Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Imag
                     Point4 new_triangle_point{triangle.vertices[i].point, 1};
                     new_triangle_point = object_to_camera * new_triangle_point;
                     {
-                        assert((glm::epsilonNotEqual(new_triangle_point.w, 0.0f,
-                                                     glm::epsilon<float>())) and
+                        assert((glm::epsilonNotEqual(new_triangle_point.w, 0.0f, kEpsilon)) and
                                "Render: после умножения на матрицу перехода в пространство камеры "
                                "координата w стала 0");
                     }
@@ -174,9 +220,11 @@ Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Imag
                                triangle.vertices[2].point - triangle.vertices[0].point);
 
                 // отсечение по направлению грани
-                Vector camera_direction = -triangle.vertices[0].point;
-                if (glm::dot(triangle_normal, camera_direction) < 0.0f) {
-                    continue;
+                if ((flags_ & DISABLE_BACKFACE_CULLING) == 0) {
+                    Vector camera_direction = -triangle.vertices[0].point;
+                    if (glm::dot(triangle_normal, camera_direction) < 0.0f) {
+                        continue;
+                    }
                 }
 
                 // отсечение по пирамиде зрения
@@ -191,8 +239,7 @@ Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Imag
                             clipped_triangles[start + triangle_index].vertices[i].point, 1};
                         new_triangle_point = parameters_.camera_to_clip * new_triangle_point;
                         {
-                            assert((glm::epsilonNotEqual(new_triangle_point.w, 0.0f,
-                                                         glm::epsilon<float>())) and
+                            assert((glm::epsilonNotEqual(new_triangle_point.w, 0.0f, kEpsilon)) and
                                    "Renderer: после умножения на матрицу перхода в Clip "
                                    "пространство координата w стала 0");
                         }
@@ -245,18 +292,80 @@ void Renderer::DrawLine(Image& image, const Point& start, const Point& end) {
         if (screen_y < 0 or screen_y >= z_buffer_.size() / parameters_.width) {
             continue;
         }
-        if (z_buffer_[screen_y * parameters_.width + screen_x] < current_point.z) {
+        if (z_buffer_[screen_y * parameters_.width + screen_x] <= current_point.z) {
             continue;
         }
         z_buffer_[screen_y * parameters_.width + screen_x] = current_point.z;
-        image.AccessPixel(screen_x, screen_y) = {.r = 255, .g = 255, .b = 255};
+        image.AccessPixel(screen_x, screen_y) = {.r = 0, .g = 255, .b = 0};
     }
 }
 
 void Renderer::DrawTriangle(Image& image, const Triangle& triangle) {
-    DrawLine(image, triangle.vertices[0].point, triangle.vertices[1].point);
-    DrawLine(image, triangle.vertices[1].point, triangle.vertices[2].point);
-    DrawLine(image, triangle.vertices[2].point, triangle.vertices[0].point);
+    if (flags_ & DRAW_FACETS) {
+        int32_t width = parameters_.width;
+        int32_t height = (z_buffer_.size() / parameters_.width);
+        int32_t half_width = width / 2;
+        int32_t half_height = height / 2;
+
+        Vector2 scale_factor{half_width, half_height};  // растяжение вдоль осей
+
+        Point2 vertices_2d[3] = {triangle.vertices[0].point, triangle.vertices[1].point,
+                                 triangle.vertices[2].point};
+
+        vertices_2d[0] *= scale_factor;
+        vertices_2d[1] *= scale_factor;
+        vertices_2d[2] *= scale_factor;
+
+        // границы прямоугольника, содержащего треугольник (координаты экрана)
+        float min_x = glm::min(vertices_2d[0].x, glm::min(vertices_2d[1].x, vertices_2d[2].x));
+        float max_x = glm::max(vertices_2d[0].x, glm::max(vertices_2d[1].x, vertices_2d[2].x));
+        float min_y = glm::min(vertices_2d[0].y, glm::min(vertices_2d[1].y, vertices_2d[2].y));
+        float max_y = glm::max(vertices_2d[0].y, glm::max(vertices_2d[1].y, vertices_2d[2].y));
+
+        // целочисленные границы, также обрезанные до границ экрана
+        int32_t min_x_int = glm::round(min_x);
+        min_x_int = glm::max(min_x_int, -half_width);
+
+        int32_t max_x_int = glm::round(max_x);
+        max_x_int = glm::min(max_x_int, width - half_width - 1);
+
+        int32_t min_y_int = glm::round(min_y);
+        min_y_int = glm::max(min_y_int, half_height - height + 1);
+
+        int32_t max_y_int = glm::round(max_y);
+        max_y_int = glm::min(max_y_int, half_height);
+
+        // перебор точек ограничивающего многоугольника
+        for (int32_t x = min_x_int; x <= max_x_int; ++x) {
+            for (int32_t y = min_y_int; y <= max_y_int; ++y) {
+                Vector barycentric_coord =
+                    Barycentric(vertices_2d[0], vertices_2d[1], vertices_2d[2], Point2{x, y});
+                // если хоть одна координата < 0, то точка вне треугольника. Вычисления
+                // приближенные, из-за чего на краях могут появляться непрорисованне пиксели, для
+                // чего используется менее строгое условие
+                if (barycentric_coord.x < -2 * kEpsilon or barycentric_coord.y < -2 * kEpsilon or
+                    barycentric_coord.z < -2 * kEpsilon) {
+                    continue;
+                }
+                // точка внутри, проверка Z буффера
+                Point orginal_point = (triangle.vertices[0].point * barycentric_coord.x +
+                                       triangle.vertices[1].point * barycentric_coord.y +
+                                       triangle.vertices[2].point * barycentric_coord.z);
+                int32_t screen_x = x + half_width;
+                int32_t screen_y = half_height - y;
+                if (z_buffer_[screen_y * width + screen_x] < orginal_point.z) {
+                    continue;
+                }
+                z_buffer_[screen_y * width + screen_x] = orginal_point.z;
+                image.AccessPixel(screen_x, screen_y) = {255, 255, 255};
+            }
+        }
+    }
+    if (flags_ & DRAW_EDGES) {
+        DrawLine(image, triangle.vertices[0].point, triangle.vertices[1].point);
+        DrawLine(image, triangle.vertices[1].point, triangle.vertices[2].point);
+        DrawLine(image, triangle.vertices[2].point, triangle.vertices[0].point);
+    }
 }
 
 void Renderer::UpdateInternalState(const size_t width, const size_t height,
@@ -267,9 +376,8 @@ void Renderer::UpdateInternalState(const size_t width, const size_t height,
         assert((height != 0) and
                "UpdateInternalState: высота переданного изображения не может быть 0");
 
-        assert((fov_x > 0.0 + glm::epsilon<float>()) and
-               "UpdateInternalState: fov_x должен быть больше 0.0");
-        assert((fov_x < 360.0 - glm::epsilon<float>()) and
+        assert((fov_x > 0.0 + kEpsilon) and "UpdateInternalState: fov_x должен быть больше 0.0");
+        assert((fov_x < 360.0 - kEpsilon) and
                "UpdateInternalState: fov_x должен быть меньше 360.0");
 
         assert((focal_length >= 0.1) and

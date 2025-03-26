@@ -38,7 +38,10 @@ int main() {
 
     // Создаем изображение и рендерим сцену
     renderer::Image image{renderer::Width{kWidth}, renderer::Height{kHeight}};
-    image = renderer.Render(scene, camera_id, std::move(image));
+    // Рисуется каркас пирамиды
+    image = renderer.Render(
+        scene, camera_id, std::move(image),
+        renderer::Renderer::DRAW_EDGES | renderer::Renderer::DISABLE_BACKFACE_CULLING);
 
     // Записываем результат в файл
     SaveToBmp(image, "example_simple_piramide.bmp");

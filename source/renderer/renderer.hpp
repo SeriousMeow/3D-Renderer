@@ -16,6 +16,26 @@ namespace renderer {
 class Renderer {
 public:
     /**
+     * @brief Тип для флагов рендеринга
+     */
+    using RenderFlags = uint32_t;
+
+    enum RenderOptions : RenderFlags {
+        /**
+         * Отрисовка ребер
+         */
+        DRAW_EDGES = 0b1,
+        /**
+         * Отрисовка граней (заливка)
+         */
+        DRAW_FACETS = 0b10,
+        /**
+         * Отключение пропуска граней, обращенных от камеры
+         */
+        DISABLE_BACKFACE_CULLING = 0b100
+    };
+
+    /**
      * @brief Создание рендерера
      */
     Renderer() = default;
@@ -24,17 +44,20 @@ public:
      * @brief Рендеринг камеры в изображение
      *
      * Рендерит переданную сцену через камеру с переданным ID. Требуется, чтобы камера принадлежала
-     * сцене. Параметры выходного изображения берутся из переданного изображения
+     * сцене. Параметры выходного изображения берутся из переданного изображения. Можно передавать
+     * флаги для отрисоки, полный список которых с описанием доступен в Renderer::RenderOptions
      *
      * @param[in] scene Сцена
      * @param[in] camera_id ID камеры в сцене
      * @param[in] image Изображение
+     * @param[in] flags Флаги отрисовки
      *
      * @return Срендеренное изображение
      *
      * @note Если ширина или высота изображения равны 0, то оно возвращается без изменений
      */
-    Image Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image);
+    Image Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image,
+                 const RenderFlags flags = DRAW_FACETS);
 
 private:
     /**
@@ -97,6 +120,7 @@ private:
         Vector4 frustum_planes[5];
     };
     Parameters parameters_;
+    RenderFlags flags_;
     std::vector<float> z_buffer_;
 };
 

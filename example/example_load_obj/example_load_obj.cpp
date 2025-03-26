@@ -23,6 +23,7 @@ int main() {
 
     // Создаем изображение и рендерим сцену
     renderer::Image image{renderer::Width{kWidth}, renderer::Height{kHeight}};
+    // По-умолчанию рисуются только грани
     image = renderer.Render(scene, camera_id, std::move(image));
 
     // Записываем результат в файл
