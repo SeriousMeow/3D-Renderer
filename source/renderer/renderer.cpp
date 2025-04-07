@@ -232,23 +232,6 @@ Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Imag
                 size_t start;
                 size_t size = ClipTriangle(triangle, clipped_triangles, &start);
 
-                // пересчет в clip пространство
-                for (size_t triangle_index = 0; triangle_index < size; ++triangle_index) {
-                    for (size_t i = 0; i < 3; ++i) {
-                        Point4 new_triangle_point{
-                            clipped_triangles[start + triangle_index].vertices[i].point, 1};
-                        new_triangle_point = parameters_.camera_to_clip * new_triangle_point;
-                        {
-                            assert((glm::epsilonNotEqual(new_triangle_point.w, 0.0f, kEpsilon)) and
-                                   "Renderer: после умножения на матрицу перхода в Clip "
-                                   "пространство координата w стала 0");
-                        }
-                        new_triangle_point /= new_triangle_point.w;
-                        clipped_triangles[start + triangle_index].vertices[i].point =
-                            new_triangle_point;
-                    }
-                }
-
                 // отрисовка
                 for (size_t i = 0; i < size; ++i) {
                     DrawTriangle(image, clipped_triangles[start + i]);
@@ -301,26 +284,48 @@ void Renderer::DrawLine(Image& image, const Point& start, const Point& end) {
 }
 
 void Renderer::DrawTriangle(Image& image, const Triangle& triangle) {
+
+    Point4 clip_vertices[3];
+    for (int i = 0; i < 3; ++i) {
+        clip_vertices[i] = Point4{triangle.vertices[i].point, 1};
+        clip_vertices[i] = parameters_.camera_to_clip * clip_vertices[i];
+        {
+            assert((glm::epsilonNotEqual(clip_vertices[i].w, 0.0f, kEpsilon)) and
+                   "Renderer: после умножения на матрицу перхода в Clip "
+                   "пространство координата w стала 0");
+        }
+    }
+    draw_parameters_.inv_wa = 1 / clip_vertices[0].w;
+    draw_parameters_.inv_wb = 1 / clip_vertices[1].w;
+    draw_parameters_.inv_wc = 1 / clip_vertices[2].w;
+
+    for (int i = 0; i < 3; ++i) {
+        draw_parameters_.vertices[i] = clip_vertices[i] / clip_vertices[i].w;
+    }
     if (flags_ & DRAW_FACETS) {
         int32_t width = parameters_.width;
         int32_t height = (z_buffer_.size() / parameters_.width);
         int32_t half_width = width / 2;
         int32_t half_height = height / 2;
 
-        Vector2 scale_factor{half_width, half_height};  // растяжение вдоль осей
-
-        Point2 vertices_2d[3] = {triangle.vertices[0].point, triangle.vertices[1].point,
-                                 triangle.vertices[2].point};
-
-        vertices_2d[0] *= scale_factor;
-        vertices_2d[1] *= scale_factor;
-        vertices_2d[2] *= scale_factor;
+        Vector scale_factor{half_width, half_height, 1};  // растяжение вдоль осей
+        for (int i = 0; i < 3; ++i) {
+            draw_parameters_.vertices[i] *= scale_factor;
+        }
 
         // границы прямоугольника, содержащего треугольник (координаты экрана)
-        float min_x = glm::min(vertices_2d[0].x, glm::min(vertices_2d[1].x, vertices_2d[2].x));
-        float max_x = glm::max(vertices_2d[0].x, glm::max(vertices_2d[1].x, vertices_2d[2].x));
-        float min_y = glm::min(vertices_2d[0].y, glm::min(vertices_2d[1].y, vertices_2d[2].y));
-        float max_y = glm::max(vertices_2d[0].y, glm::max(vertices_2d[1].y, vertices_2d[2].y));
+        float min_x =
+            glm::min(draw_parameters_.vertices[0].x,
+                     glm::min(draw_parameters_.vertices[1].x, draw_parameters_.vertices[2].x));
+        float max_x =
+            glm::max(draw_parameters_.vertices[0].x,
+                     glm::max(draw_parameters_.vertices[1].x, draw_parameters_.vertices[2].x));
+        float min_y =
+            glm::min(draw_parameters_.vertices[0].y,
+                     glm::min(draw_parameters_.vertices[1].y, draw_parameters_.vertices[2].y));
+        float max_y =
+            glm::max(draw_parameters_.vertices[0].y,
+                     glm::max(draw_parameters_.vertices[1].y, draw_parameters_.vertices[2].y));
 
         // целочисленные границы, также обрезанные до границ экрана
         int32_t min_x_int = glm::round(min_x);
@@ -335,36 +340,47 @@ void Renderer::DrawTriangle(Image& image, const Triangle& triangle) {
         int32_t max_y_int = glm::round(max_y);
         max_y_int = glm::min(max_y_int, half_height);
 
-        // перебор точек ограничивающего многоугольника
-        for (int32_t x = min_x_int; x <= max_x_int; ++x) {
-            for (int32_t y = min_y_int; y <= max_y_int; ++y) {
-                Vector barycentric_coord =
-                    Barycentric(vertices_2d[0], vertices_2d[1], vertices_2d[2], Point2{x, y});
-                // если хоть одна координата < 0, то точка вне треугольника. Вычисления
-                // приближенные, из-за чего на краях могут появляться непрорисованне пиксели, для
-                // чего используется менее строгое условие
-                if (barycentric_coord.x < -2 * kEpsilon or barycentric_coord.y < -2 * kEpsilon or
-                    barycentric_coord.z < -2 * kEpsilon) {
-                    continue;
-                }
-                // точка внутри, проверка Z буффера
-                Point orginal_point = (triangle.vertices[0].point * barycentric_coord.x +
-                                       triangle.vertices[1].point * barycentric_coord.y +
-                                       triangle.vertices[2].point * barycentric_coord.z);
-                int32_t screen_x = x + half_width;
-                int32_t screen_y = half_height - y;
-                if (z_buffer_[screen_y * width + screen_x] < orginal_point.z) {
-                    continue;
-                }
-                z_buffer_[screen_y * width + screen_x] = orginal_point.z;
-                image.AccessPixel(screen_x, screen_y) = {255, 255, 255};
-            }
-        }
+        TriangleRasterizationTask(image, triangle, min_x_int, min_y_int, max_x_int, max_y_int);
     }
     if (flags_ & DRAW_EDGES) {
-        DrawLine(image, triangle.vertices[0].point, triangle.vertices[1].point);
-        DrawLine(image, triangle.vertices[1].point, triangle.vertices[2].point);
-        DrawLine(image, triangle.vertices[2].point, triangle.vertices[0].point);
+        DrawLine(image, draw_parameters_.vertices[0], draw_parameters_.vertices[1]);
+        DrawLine(image, draw_parameters_.vertices[1], draw_parameters_.vertices[2]);
+        DrawLine(image, draw_parameters_.vertices[2], draw_parameters_.vertices[0]);
+    }
+}
+
+void Renderer::TriangleRasterizationTask(Image& image, const Triangle& triangle, const int32_t x0,
+                                         const int32_t y0, const int32_t x1, const int32_t y1) {
+    int32_t width = parameters_.width;
+    int32_t height = (z_buffer_.size() / parameters_.width);
+    int32_t half_width = width / 2;
+    int32_t half_height = height / 2;
+    // перебор точек ограничивающего многоугольника
+    for (int32_t y = y0; y <= y1; ++y) {
+        for (int32_t x = x0; x <= x1; ++x) {
+            Vector barycentric_coord =
+                Barycentric(draw_parameters_.vertices[0], draw_parameters_.vertices[1],
+                            draw_parameters_.vertices[2], Point2{x, y});
+            // если хоть одна координата < 0, то точка вне треугольника. Вычисления
+            // приближенные, из-за чего на краях могут появляться непрорисованне пиксели, для
+            // чего используется менее строгое условие
+            if (barycentric_coord.x < -2 * kEpsilon or barycentric_coord.y < -2 * kEpsilon or
+                barycentric_coord.z < -2 * kEpsilon) {
+                continue;
+            }
+            // точка внутри, проверка Z буффера
+            float z = (draw_parameters_.vertices[0] * barycentric_coord.x +
+                       draw_parameters_.vertices[1] * barycentric_coord.y +
+                       draw_parameters_.vertices[2] * barycentric_coord.z)
+                          .z;
+            int32_t screen_x = x + half_width;
+            int32_t screen_y = half_height - y;
+            if (z_buffer_[screen_y * width + screen_x] < z) {
+                continue;
+            }
+            z_buffer_[screen_y * width + screen_x] = z;
+            image.AccessPixel(screen_x, screen_y) = {255, 255, 255};
+        }
     }
 }
 

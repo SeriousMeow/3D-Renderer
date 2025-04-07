@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "image.hpp"
 #include "scene.hpp"
 
@@ -87,12 +89,28 @@ private:
     /**
      * @brief Рисование треугольника
      *
-     * Рисует переданный треугольник с учетом буффера глубины
+     * Рисует переданный треугольник с учетом буффера глубины. Треугольник передается в camera space
      *
      * @param[out] image Изображение
      * @param[in] triangle Треугольник
      */
     void DrawTriangle(Image& image, const Triangle& triangle);
+
+    /**
+     * @brief Растеризация треугольника
+     *
+     * Растеризует переданный треугольник в прямоугольнике от точки (x0, y0) до (x1, y1).
+     * Треугольник передается в camera space
+     *
+     * @param[out] image Изображение
+     * @param[in] triangle Треугольник
+     * @param[in] x0 x0
+     * @param[in] y0 y0
+     * @param[in] x1 x1
+     * @param[in] y1 y1
+     */
+    void TriangleRasterizationTask(Image& image, const Triangle& triangle, const int32_t x0,
+                                   const int32_t y0, const int32_t x1, const int32_t y1);
 
     /**
      * @brief Обрезка треугольника относительно пирамиды зрения
@@ -112,6 +130,9 @@ private:
      */
     size_t ClipTriangle(const Triangle& triangle, Triangle* result, size_t* start);
 
+    /**
+     * Общие данные для процесса рендеринга
+     */
     struct Parameters {
         size_t width{0};
         float x_scale{0};
@@ -119,7 +140,19 @@ private:
         Matrix camera_to_clip;
         Vector4 frustum_planes[5];
     };
+
+    /**
+     * Общие данные для процесса отрисовки треугольника
+     */
+    struct DrawParameters {
+        float inv_wa;       // 1/A.w
+        float inv_wb;       // 1/B.w
+        float inv_wc;       // 1/C.w
+        Point vertices[3];  // вершины в clip space
+    };
+
     Parameters parameters_;
+    DrawParameters draw_parameters_;
     RenderFlags flags_;
     std::vector<float> z_buffer_;
 };
