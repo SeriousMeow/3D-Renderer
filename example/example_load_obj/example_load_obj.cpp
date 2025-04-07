@@ -4,7 +4,7 @@
 
 int main() {
     // Загружаем объект из OBJ файла
-    renderer::Object cube = renderer::utils::LoadObjFile("cube.obj");
+    renderer::Object cube = renderer::utils::LoadFile("cube.obj");
 
     // Создаем сцену и добавляем объект, который по-умолчанию устанавливается в начало координат
     renderer::Scene scene;

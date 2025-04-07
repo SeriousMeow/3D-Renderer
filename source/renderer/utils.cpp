@@ -1,43 +1,47 @@
 #include "renderer/utils.hpp"
 
-#include <fstream>
-#include <sstream>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
+#include <assimp/Importer.hpp>
 
 namespace renderer::utils {
 
-Object LoadObjFile(const std::string& path) {
-    std::ifstream input{path};
-    if (not input.is_open()) {
-        throw std::runtime_error{"LoadObjFile: не удалось открыть файл"};
+Object LoadFile(const std::string& path) {
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate);
+
+    if ((scene == nullptr) or (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) or
+        (scene->mRootNode == nullptr)) {
+        return Object{{}};
     }
     std::vector<renderer::Point> points;
     std::vector<renderer::Triangle> triangles;
-    std::string line;
-    while (std::getline(input, line)) {
-        if (line.empty()) {
-            continue;
+
+    for (size_t mesh_index = 0; mesh_index < scene->mNumMeshes; ++mesh_index) {
+        const aiMesh* mesh = scene->mMeshes[mesh_index];
+        {
+            assert(mesh and "LoadFile: mesh не должен быть nullptr");
         }
-        std::stringstream s;
-        s << line;
-        if (line[0] == 'v') {
-            char _;
-            Point new_point;
-            s >> _ >> new_point.x >> new_point.y >> new_point.z;
-            points.push_back(new_point);
+        size_t mesh_vertices_start = points.size();
+        for (size_t vertex_index = 0; vertex_index < mesh->mNumVertices; ++vertex_index) {
+            points.push_back(Point{mesh->mVertices[vertex_index].x, mesh->mVertices[vertex_index].y,
+                                   mesh->mVertices[vertex_index].z});
         }
-        if (line[0] == 'f') {
-            char _;
+        for (size_t face_index = 0; face_index < mesh->mNumFaces; ++face_index) {
+            const aiFace facet = mesh->mFaces[face_index];
+            {
+                assert((facet.mNumIndices == 3) and "LoadFile: грань должна содержать 3 вершины");
+            }
             Triangle new_triangle;
-            size_t index;
-            s >> _;
-            for (size_t i = 0; i < 3; ++i) {
-                s >> index;
-                new_triangle.vertices[i].point = points[index - 1];
+            for (int i = 0; i < 3; ++i) {
+                new_triangle.vertices[i].point = points[mesh_vertices_start + facet.mIndices[i]];
             }
             triangles.push_back(new_triangle);
         }
     }
-    input.close();
+
     return Object{triangles};
 }
+
 }  // namespace renderer::utils

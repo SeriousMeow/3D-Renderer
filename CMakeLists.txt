@@ -33,6 +33,9 @@ target_include_directories(
   PUBLIC "\$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source>")
 
 target_include_directories(Renderer_Renderer PRIVATE ${glm_SOURCE_DIR})
+target_include_directories(Renderer_Renderer PRIVATE ${assimp_SOURCE_DIR})
+
+target_link_libraries(Renderer_Renderer PRIVATE assimp::assimp)
 
 target_compile_features(Renderer_Renderer PUBLIC cxx_std_20)
 
@@ -42,9 +45,7 @@ add_subdirectory(source)
 
 # ---- Install rules ----
 
-if(NOT CMAKE_SKIP_INSTALL_RULES)
-  include(cmake/install-rules.cmake)
-endif()
+# if(NOT CMAKE_SKIP_INSTALL_RULES) include(cmake/install-rules.cmake) endif()
 
 # ---- Examples ----
 
