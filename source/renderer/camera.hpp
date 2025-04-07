@@ -40,7 +40,7 @@ public:
      * @param[in] fov_x Горизонтальное поле зрения
      * @param[in] focal_length Фокусное расстояние
      */
-    explicit Camera(const Point& position = Vector{0, 0, 0}, const float yaw = 0,
+    explicit Camera(const Point& position = Point{0, 0, 0}, const float yaw = 0,
                     const float pitch = 0, const float fov_x = 90, const float focal_length = 1.0);
 
     /**

@@ -11,7 +11,7 @@ int main() {
     scene.PushObject(cube);
 
     // Создаем камеру в точке (3, 3, 3) и направляем в сторону начала координат
-    renderer::Camera camera{renderer::Vector{3, 3, 3}, 225, -35};
+    renderer::Camera camera{renderer::Point{3, 3, 3}, 225, -35};
     renderer::Scene::CameraId camera_id = scene.PushCamera(camera);
 
     // Создаем рендерер

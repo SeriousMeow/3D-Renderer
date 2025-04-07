@@ -24,7 +24,7 @@ int main() {
     scene.AccessObject(cube_3).AccessZAngle() = 45;
 
     // Создаем камеру в точке (4, -4, 3) и направляем в сторону начала координат
-    renderer::Camera camera{renderer::Vector{4, -4, 3}, 135, -25};
+    renderer::Camera camera{renderer::Point{4, -4, 3}, 135, -25};
     renderer::Scene::CameraId camera_id = scene.PushCamera(camera);
 
     // Создаем рендерер

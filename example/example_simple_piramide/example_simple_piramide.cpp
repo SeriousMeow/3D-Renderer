@@ -26,7 +26,7 @@ int main() {
     scene.PushObject(piramide);
 
     // Создаем камеру в точке (2, 2, 2) и направляем в сторону начала координат
-    renderer::Camera camera{renderer::Vector{2, 2, 2}, 225, -25};
+    renderer::Camera camera{renderer::Point{2, 2, 2}, 225, -25};
     renderer::Scene::CameraId camera_id = scene.PushCamera(camera);
 
     // Создаем рендерер
