@@ -5,6 +5,8 @@
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "renderer/thread_pool.hpp"
+
 namespace renderer {
 
 namespace {
@@ -340,7 +342,22 @@ void Renderer::DrawTriangle(Image& image, const Triangle& triangle) {
         int32_t max_y_int = glm::round(max_y);
         max_y_int = glm::min(max_y_int, half_height);
 
-        TriangleRasterizationTask(image, triangle, min_x_int, min_y_int, max_x_int, max_y_int);
+        ThreadPool& thread_pool = ThreadPool::Get();
+        size_t threads = ThreadPool::GetThreadsCount();
+
+        int32_t lines_per_thread = (max_y_int - min_y_int + 1) / threads + 1;
+        int32_t current_line = min_y_int;
+        for (size_t i = 0; i < threads and current_line <= max_y_int; ++i) {
+            int32_t end_line = current_line + lines_per_thread - 1;
+            end_line = std::min(end_line, max_y_int);
+            thread_pool.Enqueue(
+                [this, &image, &triangle, min_x_int, current_line, max_x_int, end_line]() {
+                    TriangleRasterizationTask(image, triangle, min_x_int, current_line, max_x_int,
+                                              end_line);
+                });
+            current_line = end_line + 1;
+        }
+        thread_pool.WaitAll();
     }
     if (flags_ & DRAW_EDGES) {
         DrawLine(image, draw_parameters_.vertices[0], draw_parameters_.vertices[1]);
