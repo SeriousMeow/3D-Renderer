@@ -21,6 +21,11 @@ using Point2 = glm::vec2;
 using Vector2 = glm::vec2;
 
 /**
+ * Матрица 3x3
+ */
+using Matrix3 = glm::mat3;
+
+/**
  * Малое значение
  */
 constexpr float kEpsilon = glm::epsilon<float>();
@@ -64,6 +69,7 @@ float PlaneIntersection(const Vector4& plane, const Point& line_start,
 Vertex InterpolateVertex(const Vertex& start, const Vertex& end, const float t) {
     Vertex result;
     result.point = start.point + (end.point - start.point) * t;
+    result.normal = start.normal + (end.normal - start.normal) * t;
     return result;
 }
 
@@ -179,6 +185,80 @@ Vector Barycentric(const Point2& a, const Point2& b, const Point2& c, const Poin
     return coordinates;
 }
 
+struct LightParameters {
+    Point position;
+    Vector normal;
+};
+
+/**
+ * Вычисляет интенсивность цвета от заданного источника света
+ */
+Color LightColor(const LightSource& source, const LightParameters& parameters) {
+    if (std::holds_alternative<AmbientLight>(source)) {
+        const AmbientLight& light = std::get<AmbientLight>(source);
+        return light.color * light.strength;
+    }
+    if (std::holds_alternative<DirectionalLight>(source)) {
+        const DirectionalLight& light = std::get<DirectionalLight>(source);
+        Vector light_direction = glm::normalize(-light.direction);
+        float diff = glm::max(glm::dot(light_direction, parameters.normal), 0.0f);
+
+        constexpr int kShiness = 32;
+        Vector view_direction = glm::normalize(-parameters.position);
+        Vector mid_vec = glm::normalize(view_direction + light_direction);
+        float spec = glm::pow(glm::max(glm::dot(mid_vec, parameters.normal), 0.0f), kShiness);
+
+        Color diffuse = light.color * diff;
+        Color specular = light.color * spec;
+        return (diffuse + specular) * light.strength;
+    }
+    if (std::holds_alternative<PointLight>(source)) {
+        const PointLight& light = std::get<PointLight>(source);
+        Vector light_direction = (light.position - parameters.position);
+        float light_distance = glm::length(light_direction);
+        light_direction = glm::normalize(light_direction);
+
+        float distance_strength = 1.0f / (light.constant + light.linear * light_distance +
+                                          light.quadratic * light_distance * light_distance);
+
+        float diff = glm::max(glm::dot(light_direction, parameters.normal), 0.0f);
+        constexpr int kShiness = 32;
+        Vector view_direction = glm::normalize(-parameters.position);
+        Vector mid_vec = glm::normalize(view_direction + light_direction);
+        float spec = glm::pow(glm::max(glm::dot(mid_vec, parameters.normal), 0.0f), kShiness);
+
+        Color diffuse = light.color * diff;
+        Color specular = light.color * spec;
+        return (diffuse + specular) * light.strength * distance_strength;
+    }
+    if (std::holds_alternative<SpotLight>(source)) {
+        const SpotLight& light = std::get<SpotLight>(source);
+        Vector light_direction = (light.position - parameters.position);
+        float light_distance = glm::length(light_direction);
+        light_direction = glm::normalize(light_direction);
+
+        float distance_strength =
+            glm::pow(glm::max(-glm::dot(glm::normalize(light.direction), light_direction), 0.0f),
+                     light.exponent) /
+            (light.constant + light.linear * light_distance +
+             light.quadratic * light_distance * light_distance);
+
+        float diff = glm::max(glm::dot(light_direction, parameters.normal), 0.0f);
+        constexpr int kShiness = 32;
+        Vector view_direction = glm::normalize(-parameters.position);
+        Vector mid_vec = glm::normalize(view_direction + light_direction);
+        float spec = glm::pow(glm::max(glm::dot(mid_vec, parameters.normal), 0.0f), kShiness);
+
+        Color diffuse = light.color * diff;
+        Color specular = light.color * spec;
+        return (diffuse + specular) * light.strength * distance_strength;
+    }
+    {
+        assert(false and "LightColor: неизвестный тип источника света");
+    }
+    return Vector{0};
+}
+
 }  // namespace
 
 Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Image&& image,
@@ -196,12 +276,14 @@ Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Imag
         UpdateInternalState(image.GetWidth(), image.GetHeight(),
                             scene.AccessCamera(camera_id).GetFocalLength(),
                             scene.AccessCamera(camera_id).GetFovX());
+        parameters_.light_begin = scene.LightBegin();
+        parameters_.light_end = scene.LightEnd();
         Matrix camera_view_matrix = scene.AccessCamera(camera_id).GetViewMatrix();
         const Object::FacetType* facets_storage = scene.AccessFacetsStorage();
         for (auto objects_it = scene.ObjectsBegin(); objects_it != scene.ObjectsEnd();
              ++objects_it) {
             Matrix object_to_camera = camera_view_matrix * objects_it->GetObjectMatrix();
-
+            Matrix3 normal_to_camera = glm::transpose(glm::inverse(Matrix3{object_to_camera}));
             for (size_t triangle_index = 0; triangle_index < objects_it->Size(); ++triangle_index) {
                 Triangle triangle = facets_storage[objects_it->Begin() + triangle_index];
                 // нормализуем координаты и переводим в координаты камеры
@@ -215,6 +297,8 @@ Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Imag
                     }
                     new_triangle_point /= new_triangle_point.w;
                     triangle.vertices[i].point = new_triangle_point;
+                    triangle.vertices[i].normal =
+                        glm::normalize(normal_to_camera * triangle.vertices[i].normal);
                 }
                 // находим нормаль к грани
                 Vector triangle_normal =
@@ -296,10 +380,8 @@ void Renderer::DrawTriangle(Image& image, const Triangle& triangle) {
                    "Renderer: после умножения на матрицу перхода в Clip "
                    "пространство координата w стала 0");
         }
+        draw_parameters_.inv_w[i] = 1 / clip_vertices[i].w;
     }
-    draw_parameters_.inv_wa = 1 / clip_vertices[0].w;
-    draw_parameters_.inv_wb = 1 / clip_vertices[1].w;
-    draw_parameters_.inv_wc = 1 / clip_vertices[2].w;
 
     for (int i = 0; i < 3; ++i) {
         draw_parameters_.vertices[i] = clip_vertices[i] / clip_vertices[i].w;
@@ -396,7 +478,41 @@ void Renderer::TriangleRasterizationTask(Image& image, const Triangle& triangle,
                 continue;
             }
             z_buffer_[screen_y * width + screen_x] = z;
-            image.AccessPixel(screen_x, screen_y) = {255, 255, 255};
+            // вычисление света
+            Color pixel_color = colors::kWhite;
+            if (flags_ & ENABLE_LIGHT) {
+                float lambda = 1.0f / glm::dot(barycentric_coord, draw_parameters_.inv_w);
+                LightParameters light_parameters;
+                Vector coefs = barycentric_coord * draw_parameters_.inv_w;
+                light_parameters.position =
+                    (coefs[0] * triangle.vertices[0].point + coefs[1] * triangle.vertices[1].point +
+                     coefs[2] * triangle.vertices[2].point) *
+                    lambda;
+                light_parameters.normal = (coefs[0] * triangle.vertices[0].normal +
+                                           coefs[1] * triangle.vertices[1].normal +
+                                           coefs[2] * triangle.vertices[2].normal) *
+                                          lambda;
+
+                Color total_light_color{0, 0, 0};
+                for (auto it = parameters_.light_begin; it != parameters_.light_end; ++it) {
+                    total_light_color += LightColor(*it, light_parameters);
+                }
+                pixel_color *= total_light_color;
+            }
+
+            pixel_color = glm::clamp(pixel_color, 0.0f, 1.0f);
+            uint8_t r = pixel_color.r * 255;
+            uint8_t g = pixel_color.g * 255;
+            uint8_t b = pixel_color.b * 255;
+            {
+                assert((0 <= r and r <= 255) and
+                       "TriangleRasterizationTask: компонента r вышла из диапазона");
+                assert((0 <= g and g <= 255) and
+                       "TriangleRasterizationTask: компонента g вышла из диапазона");
+                assert((0 <= b and b <= 255) and
+                       "TriangleRasterizationTask: компонента b вышла из диапазона");
+            }
+            image.AccessPixel(screen_x, screen_y) = {r, g, b};
         }
     }
 }

@@ -6,6 +6,8 @@
 #pragma once
 
 #include "renderer/camera.hpp"
+#include "renderer/color.hpp"
+#include "renderer/light.hpp"
 #include "renderer/object.hpp"
 #include "renderer/primitives.hpp"
 #include "renderer/renderer.hpp"

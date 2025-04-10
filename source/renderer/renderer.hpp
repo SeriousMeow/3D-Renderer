@@ -34,7 +34,11 @@ public:
         /**
          * Отключение пропуска граней, обращенных от камеры
          */
-        DISABLE_BACKFACE_CULLING = 0b100
+        DISABLE_BACKFACE_CULLING = 0b100,
+        /**
+         * Рассчет освещения. Неактивно, если неактивно DRAW_FACETS
+         */
+        ENABLE_LIGHT = 0b1000
     };
 
     /**
@@ -139,15 +143,15 @@ private:
         float y_scale{0};
         Matrix camera_to_clip;
         Vector4 frustum_planes[5];
+        Scene::LightConstIterator light_begin;
+        Scene::LightConstIterator light_end;
     };
 
     /**
      * Общие данные для процесса отрисовки треугольника
      */
     struct DrawParameters {
-        float inv_wa;       // 1/A.w
-        float inv_wb;       // 1/B.w
-        float inv_wc;       // 1/C.w
+        Vector inv_w;       // 1/A.w, 1/B.w, 1/C.w
         Point vertices[3];  // вершины в clip space
     };
 

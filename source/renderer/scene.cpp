@@ -20,6 +20,12 @@ Scene::CameraId Scene::PushCamera(const Camera& camera) {
     return id;
 }
 
+Scene::LightId Scene::PushLight(const LightSource& light_source) {
+    LightId id = light_sources_.size();
+    light_sources_.push_back(light_source);
+    return id;
+}
+
 Scene::ObjectsIterator Scene::ObjectsBegin() {
     return objects_.begin();
 }
@@ -34,6 +40,22 @@ Scene::ObjectsIterator Scene::ObjectsEnd() {
 
 Scene::ObjectsConstIterator Scene::ObjectsEnd() const {
     return objects_.end();
+}
+
+Scene::LightIterator Scene::LightBegin() {
+    return light_sources_.begin();
+}
+
+Scene::LightConstIterator Scene::LightBegin() const {
+    return light_sources_.begin();
+}
+
+Scene::LightIterator Scene::LightEnd() {
+    return light_sources_.end();
+}
+
+Scene::LightConstIterator Scene::LightEnd() const {
+    return light_sources_.end();
 }
 
 Camera& Scene::AccessCamera(const CameraId id) {
@@ -64,12 +86,30 @@ const SceneObject& Scene::AccessObject(const ObjectId id) const {
     return objects_[id];
 }
 
+LightSource& Scene::AccessLight(const LightId id) {
+    {
+        assert(HasLight(id) and "AccessLight: источника света с переданным ID не существует");
+    }
+    return light_sources_[id];
+}
+
+const LightSource& Scene::AccessLight(const LightId id) const {
+    {
+        assert(HasLight(id) and "AccessLight: источника света с переданным ID не существует");
+    }
+    return light_sources_[id];
+}
+
 bool Scene::HasObject(const ObjectId id) const {
     return (0 <= id and id < objects_.size());
 }
 
 bool Scene::HasCamera(const CameraId id) const {
     return (0 <= id and id < cameras_.size());
+}
+
+bool Scene::HasLight(const LightId id) const {
+    return (0 <= id and id < light_sources_.size());
 }
 
 Object::FacetType* Scene::AccessFacetsStorage() {
