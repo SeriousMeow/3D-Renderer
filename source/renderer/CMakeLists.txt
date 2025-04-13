@@ -6,3 +6,6 @@ target_sources(Renderer_Renderer PRIVATE utils.cpp)
 target_sources(Renderer_Renderer PRIVATE camera.cpp)
 target_sources(Renderer_Renderer PRIVATE scene_object.cpp)
 target_sources(Renderer_Renderer PRIVATE thread_pool.cpp)
+target_sources(Renderer_Renderer PRIVATE resources_manager.cpp)
+
+target_sources(Renderer_Renderer PRIVATE stb_image.cpp)

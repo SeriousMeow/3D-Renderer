@@ -3,15 +3,15 @@
 #include "../BMP_Writer/BMP_Writer.hpp"
 
 int main() {
-    // Создаем точки
-    renderer::Point a = {0, 0, 0};
-    renderer::Point b = {1, 0, 0};
-    renderer::Point c = {0, 1.5, 0};
-    renderer::Point d = {0, 0, 2};
+    // Создаем вершины
+    renderer::Vertex a = {.point = {0, 0, 0}};
+    renderer::Vertex b = {.point = {1, 0, 0}};
+    renderer::Vertex c = {.point = {0, 1.5, 0}};
+    renderer::Vertex d = {.point = {0, 0, 2}};
 
     // Создаем грани-треугольники из точек. Наружней считается та сторона, относительно которой
     // точки перечисленны против часовой стрелки
-    std::vector<renderer::Triangle> faces = {
+    std::vector<renderer::Triangle> fasets = {
         {.vertices = {a, c, b}},
         {.vertices = {b, c, d}},
         {.vertices = {a, b, d}},
@@ -19,7 +19,7 @@ int main() {
     };
 
     // Создаем объект из граней
-    renderer::Object piramide{faces};
+    renderer::Object piramide{fasets};
 
     // Создаем сцену и добавляем объект, который по-умолчанию устанавливается в начало координат
     renderer::Scene scene;

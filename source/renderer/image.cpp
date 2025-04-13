@@ -4,6 +4,11 @@
 
 namespace renderer {
 
+Color Image::Pixel::ToColor(const Image::Pixel& pixel) {
+    return Color{static_cast<float>(pixel.r) / 255.0f, static_cast<float>(pixel.g) / 255.0f,
+                 static_cast<float>(pixel.b) / 255.0f};
+}
+
 Image::Image(const Width width, const Height height) : width_{width} {
     image_.resize(width_ * static_cast<size_t>(height));
 }

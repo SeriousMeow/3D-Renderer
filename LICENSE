@@ -37,3 +37,9 @@ This project includes:
 
 - Poly2Tri (used internally by Assimp), licensed under the 3-Clause BSD License.
   License: https://github.com/assimp/assimp/blob/master/contrib/poly2tri/license.txt
+
+- stb single-file libraries (including stb_image.h), originally by Sean Barrett with contributions from others.
+  Source: https://github.com/nothings/stb
+  License: Public Domain or MIT (at your option)
+  Full list of contributors: https://github.com/nothings/stb/graphs/contributors
+  Note: Used in unmodified form from the stb library collection.

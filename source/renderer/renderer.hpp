@@ -151,8 +151,9 @@ private:
      * Общие данные для процесса отрисовки треугольника
      */
     struct DrawParameters {
-        Vector inv_w;       // 1/A.w, 1/B.w, 1/C.w
-        Point vertices[3];  // вершины в clip space
+        Vector inv_w;         // 1/A.w, 1/B.w, 1/C.w
+        Point vertices[3];    // вершины в clip space
+        MaterialId material;  // материал грани
     };
 
     Parameters parameters_;

@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "renderer/resources_types.hpp"
 #include "renderer/types.hpp"
 
 namespace renderer {
@@ -25,7 +26,12 @@ struct Vertex {
     /**
      * @brief Нормаль
      */
-    Vector normal;
+    Vector normal = {0, 0, 0};
+
+    /**
+     * @brief UV координаты вершины
+     */
+    Point2 uv_coordinates = {0, 0};
 };
 
 /**
@@ -39,5 +45,10 @@ struct Triangle {
      * перечислены против часовой стрелки
      */
     Vertex vertices[3];
+
+    /**
+     * @brief Материал грани
+     */
+    MaterialId material = 0;
 };
 };  // namespace renderer

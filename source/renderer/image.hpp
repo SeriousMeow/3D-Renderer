@@ -8,6 +8,8 @@
 #include <cstdint>
 #include <vector>
 
+#include "renderer/color.hpp"
+
 namespace renderer {
 
 /**
@@ -35,6 +37,17 @@ public:
         uint8_t r;
         uint8_t g;
         uint8_t b;
+
+        /**
+         * @brief Преобразование пикселя в цвет
+         *
+         * Пробразует переданный пиксель в цвет
+         *
+         * @param[in] pixel Пиксель
+         *
+         * @return Цвет
+         */
+        static Color ToColor(const Pixel& pixel);
     };
 
     /**

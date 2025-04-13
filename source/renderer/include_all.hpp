@@ -11,6 +11,7 @@
 #include "renderer/object.hpp"
 #include "renderer/primitives.hpp"
 #include "renderer/renderer.hpp"
+#include "renderer/resources_manager.hpp"
 #include "renderer/scene.hpp"
 #include "renderer/scene_object.hpp"
 #include "renderer/types.hpp"

@@ -5,6 +5,7 @@
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "renderer/resources_manager.hpp"
 #include "renderer/thread_pool.hpp"
 
 namespace renderer {
@@ -70,6 +71,7 @@ Vertex InterpolateVertex(const Vertex& start, const Vertex& end, const float t) 
     Vertex result;
     result.point = start.point + (end.point - start.point) * t;
     result.normal = start.normal + (end.normal - start.normal) * t;
+    result.uv_coordinates = start.uv_coordinates + (end.uv_coordinates - start.uv_coordinates) * t;
     return result;
 }
 
@@ -188,29 +190,31 @@ Vector Barycentric(const Point2& a, const Point2& b, const Point2& c, const Poin
 struct LightParameters {
     Point position;
     Vector normal;
+    MaterialId material;
 };
 
 /**
  * Вычисляет интенсивность цвета от заданного источника света
  */
-Color LightColor(const LightSource& source, const LightParameters& parameters) {
+Color LightColor(const LightSource& source, const LightParameters& parameters,
+                 const Material material) {
     if (std::holds_alternative<AmbientLight>(source)) {
         const AmbientLight& light = std::get<AmbientLight>(source);
-        return light.color * light.strength;
+        return light.color * material.ambient * light.strength;
     }
     if (std::holds_alternative<DirectionalLight>(source)) {
         const DirectionalLight& light = std::get<DirectionalLight>(source);
         Vector light_direction = glm::normalize(-light.direction);
         float diff = glm::max(glm::dot(light_direction, parameters.normal), 0.0f);
 
-        constexpr int kShiness = 32;
         Vector view_direction = glm::normalize(-parameters.position);
         Vector mid_vec = glm::normalize(view_direction + light_direction);
-        float spec = glm::pow(glm::max(glm::dot(mid_vec, parameters.normal), 0.0f), kShiness);
+        float spec =
+            glm::pow(glm::max(glm::dot(mid_vec, parameters.normal), 0.0f), material.shininess);
 
-        Color diffuse = light.color * diff;
-        Color specular = light.color * spec;
-        return (diffuse + specular) * light.strength;
+        Color diffuse = material.diffuse * diff;
+        Color specular = material.specular * spec;
+        return (diffuse + specular) * light.color * light.strength;
     }
     if (std::holds_alternative<PointLight>(source)) {
         const PointLight& light = std::get<PointLight>(source);
@@ -222,14 +226,14 @@ Color LightColor(const LightSource& source, const LightParameters& parameters) {
                                           light.quadratic * light_distance * light_distance);
 
         float diff = glm::max(glm::dot(light_direction, parameters.normal), 0.0f);
-        constexpr int kShiness = 32;
         Vector view_direction = glm::normalize(-parameters.position);
         Vector mid_vec = glm::normalize(view_direction + light_direction);
-        float spec = glm::pow(glm::max(glm::dot(mid_vec, parameters.normal), 0.0f), kShiness);
+        float spec =
+            glm::pow(glm::max(glm::dot(mid_vec, parameters.normal), 0.0f), material.shininess);
 
-        Color diffuse = light.color * diff;
-        Color specular = light.color * spec;
-        return (diffuse + specular) * light.strength * distance_strength;
+        Color diffuse = material.diffuse * diff;
+        Color specular = material.specular * spec;
+        return (diffuse + specular) * light.color * light.strength * distance_strength;
     }
     if (std::holds_alternative<SpotLight>(source)) {
         const SpotLight& light = std::get<SpotLight>(source);
@@ -244,14 +248,14 @@ Color LightColor(const LightSource& source, const LightParameters& parameters) {
              light.quadratic * light_distance * light_distance);
 
         float diff = glm::max(glm::dot(light_direction, parameters.normal), 0.0f);
-        constexpr int kShiness = 32;
         Vector view_direction = glm::normalize(-parameters.position);
         Vector mid_vec = glm::normalize(view_direction + light_direction);
-        float spec = glm::pow(glm::max(glm::dot(mid_vec, parameters.normal), 0.0f), kShiness);
+        float spec =
+            glm::pow(glm::max(glm::dot(mid_vec, parameters.normal), 0.0f), material.shininess);
 
-        Color diffuse = light.color * diff;
-        Color specular = light.color * spec;
-        return (diffuse + specular) * light.strength * distance_strength;
+        Color diffuse = material.diffuse * diff;
+        Color specular = material.specular * spec;
+        return (diffuse + specular) * light.color * light.strength * distance_strength;
     }
     {
         assert(false and "LightColor: неизвестный тип источника света");
@@ -306,7 +310,9 @@ Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Imag
                                triangle.vertices[2].point - triangle.vertices[0].point);
 
                 // отсечение по направлению грани
-                if ((flags_ & DISABLE_BACKFACE_CULLING) == 0) {
+                const Material& material =
+                    ResourcesManager::Get().AccessMaterial(triangle.material);
+                if ((flags_ & DISABLE_BACKFACE_CULLING) == 0 and (not material.two_sided)) {
                     Vector camera_direction = -triangle.vertices[0].point;
                     if (glm::dot(triangle_normal, camera_direction) < 0.0f) {
                         continue;
@@ -361,6 +367,7 @@ void Renderer::DrawLine(Image& image, const Point& start, const Point& end) {
         if (screen_y < 0 or screen_y >= z_buffer_.size() / parameters_.width) {
             continue;
         }
+        current_point.z -= 10 * kEpsilon;  // более четкие границы при совмещении с растеризацией
         if (z_buffer_[screen_y * parameters_.width + screen_x] <= current_point.z) {
             continue;
         }
@@ -386,6 +393,13 @@ void Renderer::DrawTriangle(Image& image, const Triangle& triangle) {
     for (int i = 0; i < 3; ++i) {
         draw_parameters_.vertices[i] = clip_vertices[i] / clip_vertices[i].w;
     }
+
+    if (flags_ & DRAW_EDGES) {
+        DrawLine(image, draw_parameters_.vertices[0], draw_parameters_.vertices[1]);
+        DrawLine(image, draw_parameters_.vertices[1], draw_parameters_.vertices[2]);
+        DrawLine(image, draw_parameters_.vertices[2], draw_parameters_.vertices[0]);
+    }
+
     if (flags_ & DRAW_FACETS) {
         int32_t width = parameters_.width;
         int32_t height = (z_buffer_.size() / parameters_.width);
@@ -441,11 +455,6 @@ void Renderer::DrawTriangle(Image& image, const Triangle& triangle) {
         }
         thread_pool.WaitAll();
     }
-    if (flags_ & DRAW_EDGES) {
-        DrawLine(image, draw_parameters_.vertices[0], draw_parameters_.vertices[1]);
-        DrawLine(image, draw_parameters_.vertices[1], draw_parameters_.vertices[2]);
-        DrawLine(image, draw_parameters_.vertices[2], draw_parameters_.vertices[0]);
-    }
 }
 
 void Renderer::TriangleRasterizationTask(Image& image, const Triangle& triangle, const int32_t x0,
@@ -454,6 +463,7 @@ void Renderer::TriangleRasterizationTask(Image& image, const Triangle& triangle,
     int32_t height = (z_buffer_.size() / parameters_.width);
     int32_t half_width = width / 2;
     int32_t half_height = height / 2;
+    const ResourcesManager& manager = ResourcesManager::Get();
     // перебор точек ограничивающего многоугольника
     for (int32_t y = y0; y <= y1; ++y) {
         for (int32_t x = x0; x <= x1; ++x) {
@@ -478,12 +488,19 @@ void Renderer::TriangleRasterizationTask(Image& image, const Triangle& triangle,
                 continue;
             }
             z_buffer_[screen_y * width + screen_x] = z;
+            float lambda = 1.0f / glm::dot(barycentric_coord, draw_parameters_.inv_w);
+            Vector coefs = barycentric_coord * draw_parameters_.inv_w;
+            Point2 uv_coordinates = (coefs[0] * triangle.vertices[0].uv_coordinates +
+                                     coefs[1] * triangle.vertices[1].uv_coordinates +
+                                     coefs[2] * triangle.vertices[2].uv_coordinates) *
+                                    lambda;
+
+            Color pixel_color = manager.GetPixelByUV(
+                manager.AccessMaterial(triangle.material).texture, uv_coordinates);
+
             // вычисление света
-            Color pixel_color = colors::kWhite;
             if (flags_ & ENABLE_LIGHT) {
-                float lambda = 1.0f / glm::dot(barycentric_coord, draw_parameters_.inv_w);
                 LightParameters light_parameters;
-                Vector coefs = barycentric_coord * draw_parameters_.inv_w;
                 light_parameters.position =
                     (coefs[0] * triangle.vertices[0].point + coefs[1] * triangle.vertices[1].point +
                      coefs[2] * triangle.vertices[2].point) *
@@ -494,8 +511,9 @@ void Renderer::TriangleRasterizationTask(Image& image, const Triangle& triangle,
                                           lambda;
 
                 Color total_light_color{0, 0, 0};
+                const Material& material = manager.AccessMaterial(triangle.material);
                 for (auto it = parameters_.light_begin; it != parameters_.light_end; ++it) {
-                    total_light_color += LightColor(*it, light_parameters);
+                    total_light_color += LightColor(*it, light_parameters, material);
                 }
                 pixel_color *= total_light_color;
             }
