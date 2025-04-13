@@ -40,6 +40,16 @@ Object LoadFile(const std::string& path) {
         }
         renderer::Material new_material;
         {
+            aiString name;
+            if (material->Get(AI_MATKEY_NAME, name) == AI_SUCCESS) {
+                if (strcmp(name.C_Str(), "DefaultMaterial") == 0) {
+                    // материал по-умолчанию, переопределяется на материал Renderer
+                    materials[material_index] = 0;
+                    continue;
+                }
+            }
+        }
+        {
             aiColor3D color{new_material.ambient.r, new_material.ambient.g, new_material.ambient.b};
             material->Get(AI_MATKEY_COLOR_AMBIENT, color);
             new_material.ambient = {color.r, color.g, color.b};
