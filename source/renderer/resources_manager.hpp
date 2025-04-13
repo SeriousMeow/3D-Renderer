@@ -106,6 +106,12 @@ public:
      */
     bool HasTexture(const TextureId id) const;
 
+    ResourcesManager(const ResourcesManager& other) = delete;
+    ResourcesManager(ResourcesManager&& other) = delete;
+
+    ResourcesManager& operator=(const ResourcesManager& other) = delete;
+    ResourcesManager& operator=(ResourcesManager&& other) = delete;
+
 private:
     struct Texture {
         std::string path;
