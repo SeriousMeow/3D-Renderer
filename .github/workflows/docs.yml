@@ -24,8 +24,8 @@ jobs:
     - name: Install Doxygen 1.13.2
       run: |
         wget https://github.com/doxygen/doxygen/releases/download/Release_1_13_2/doxygen-1.13.2.linux.bin.tar.gz
-        tar -xzf doxygen-1.8.20.linux.bin.tar.gz
-        sudo cp doxygen-1.8.20/bin/doxygen /usr/local/bin/
+        tar -xzf doxygen-1.13.2.linux.bin.tar.gz
+        sudo cp doxygen-1.13.2/bin/doxygen /usr/local/bin/
         doxygen --version
 
     - name: Configure with CMake
