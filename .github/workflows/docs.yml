@@ -39,9 +39,11 @@ jobs:
         cd build
         make docs
 
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
+    - name: Upload static files as artifact
+      uses: actions/upload-pages-artifact@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build/docs/html
+        path: ./build/docs/html
+
+    - name: Deploy to GitHub Pages
+      uses: actions/deploy-pages@v4
 
