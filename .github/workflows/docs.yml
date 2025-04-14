@@ -1,0 +1,52 @@
+name: Deploy Doxygen Docs to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y graphviz cmake make
+
+    - name: Install Doxygen 1.8.20
+      run: |
+        wget https://github.com/doxygen/doxygen/releases/download/Release_1_8_20/doxygen-1.8.20.linux.bin.tar.gz
+        tar -xzf doxygen-1.8.20.linux.bin.tar.gz
+        sudo cp doxygen-1.8.20/bin/doxygen /usr/local/bin/
+        doxygen --version
+
+    - name: Configure with CMake
+      run: |
+        mkdir -p build
+        cd build
+        cmake ..
+
+    - name: Build docs
+      run: |
+        cd build
+        make docs
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build/docs/html
+
