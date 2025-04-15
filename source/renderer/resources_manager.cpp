@@ -1,6 +1,6 @@
 #include "renderer/resources_manager.hpp"
 
-#include "renderer/stb_image.h"
+#include "stb_image.h"
 
 namespace renderer {
 

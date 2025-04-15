@@ -12,6 +12,11 @@ FetchContent_Declare(
   GIT_TAG c35200e38ea8f058812b83de2ef32c6093b0ece2 # v5.4.3
 )
 
+FetchContent_Declare(
+  stb
+  GIT_REPOSITORY https://github.com/nothings/stb.git
+  GIT_TAG f0569113c93ad095470c54bf34a17b36646bbbb5)
+
 FetchContent_MakeAvailable(glm)
 
 # Опции assimp
@@ -22,3 +27,10 @@ set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_INSTALL OFF)
 
 FetchContent_MakeAvailable(assimp)
+
+FetchContent_MakeAvailable(stb)
+
+# Дальнейшее использование как обычной библиотеки
+
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE ${stb_SOURCE_DIR})

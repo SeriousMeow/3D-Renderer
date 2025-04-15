@@ -42,7 +42,7 @@ set(config "${working_dir}/Doxyfile")
 add_custom_target(
   docs
   COMMAND "${CMAKE_COMMAND}" -E remove_directory
-          "${DOXYGEN_OUTPUT_DIRECTORY}/html" "${DOXYGEN_OUTPUT_DIRECTORY}/xml"
+          "${DOXYGEN_OUTPUT_DIRECTORY}/html"
   COMMAND "doxygen" "${config}"
   COMMENT "Building documentation using Doxygen"
   WORKING_DIRECTORY "${working_dir}"

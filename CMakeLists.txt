@@ -36,6 +36,7 @@ target_include_directories(Renderer_Renderer PRIVATE ${glm_SOURCE_DIR})
 target_include_directories(Renderer_Renderer PRIVATE ${assimp_SOURCE_DIR})
 
 target_link_libraries(Renderer_Renderer PRIVATE assimp::assimp)
+target_link_libraries(Renderer_Renderer PRIVATE stb)
 
 target_compile_features(Renderer_Renderer PUBLIC cxx_std_20)
 
