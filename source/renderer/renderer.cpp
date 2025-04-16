@@ -190,21 +190,89 @@ Vector Barycentric(const Point2& a, const Point2& b, const Point2& c, const Poin
 struct LightParameters {
     Point position;
     Vector normal;
-    MaterialId material;
+    const Matrix& scene_to_camera;
 };
+
+/**
+ * Применение матрицы трансформации к точке
+ *
+ * @param[in] point Точка
+ * @param[in] transform Матрица трансформации
+ * @param[in] divide_w Требуется ли разделить на координату w
+ *
+ * @return Трансформированная точка
+ */
+inline Point TransformPoint(const Point& point, const Matrix& transform, bool divide_w = false) {
+
+    Point4 transformed_point = transform * Point4{point, 1};
+    if (divide_w) {
+        {
+            assert((glm::epsilonNotEqual(transformed_point.w, 0.0f, kEpsilon)) and
+                   "Scene: после умножения на матрицу перехода в пространство камеры "
+                   "координата w стала 0");
+        }
+        transformed_point /= transformed_point.w;
+    }
+    return transformed_point;
+}
+
+/**
+ * Применение матрицы трансформации к вектору
+ *
+ * @param[in] point Точка
+ * @param[in] transform Матрица трансформации
+ *
+ * @return Трансформированный вектор
+ */
+inline Vector TransformVector(const Vector& vector, const Matrix& transform) {
+    Vector4 transformed_vector = transform * Vector4{vector, 0};
+    return transformed_vector;
+}
+
+/**
+ * Применение матрицы трансформации к вектору
+ *
+ * @param[in] point Точка
+ * @param[in] transform Матрица трансформации
+ *
+ * @return Трансформированный вектор
+ */
+inline Vector TransformVector(const Vector& vector, const Matrix3& transform) {
+    Vector transformed_vector = transform * vector;
+    return transformed_vector;
+}
+
+/**
+ * Рассчет модификатора яркости света от расстояния
+ */
+inline float DistantStrength(const PointLight& light_source, const float distance) {
+    return 1.0f / (light_source.constant + light_source.linear * distance +
+                   light_source.quadratic * distance * distance);
+}
+
+/**
+ * Рассчет модификатора яркости света от расстояния
+ */
+inline float DistantStrength(const SpotLight& light_source, const float distance) {
+    return 1.0f / (light_source.constant + light_source.linear * distance +
+                   light_source.quadratic * distance * distance);
+}
 
 /**
  * Вычисляет интенсивность цвета от заданного источника света
  */
 Color LightColor(const LightSource& source, const LightParameters& parameters,
-                 const Material material) {
+                 const Material& material) {
     if (std::holds_alternative<AmbientLight>(source)) {
         const AmbientLight& light = std::get<AmbientLight>(source);
         return light.color * material.ambient * light.strength;
     }
     if (std::holds_alternative<DirectionalLight>(source)) {
         const DirectionalLight& light = std::get<DirectionalLight>(source);
-        Vector light_direction = glm::normalize(-light.direction);
+
+        Vector light_direction = -TransformVector(light.direction, parameters.scene_to_camera);
+        light_direction = glm::normalize(light_direction);
+
         float diff = glm::max(glm::dot(light_direction, parameters.normal), 0.0f);
 
         Vector view_direction = glm::normalize(-parameters.position);
@@ -218,12 +286,14 @@ Color LightColor(const LightSource& source, const LightParameters& parameters,
     }
     if (std::holds_alternative<PointLight>(source)) {
         const PointLight& light = std::get<PointLight>(source);
-        Vector light_direction = (light.position - parameters.position);
-        float light_distance = glm::length(light_direction);
+
+        Point light_position = TransformPoint(light.position, parameters.scene_to_camera);
+        Vector light_direction = (light_position - parameters.position);
+
+        float distance = glm::length(light_direction);
         light_direction = glm::normalize(light_direction);
 
-        float distance_strength = 1.0f / (light.constant + light.linear * light_distance +
-                                          light.quadratic * light_distance * light_distance);
+        float distance_strength = DistantStrength(light, distance);
 
         float diff = glm::max(glm::dot(light_direction, parameters.normal), 0.0f);
         Vector view_direction = glm::normalize(-parameters.position);
@@ -237,15 +307,19 @@ Color LightColor(const LightSource& source, const LightParameters& parameters,
     }
     if (std::holds_alternative<SpotLight>(source)) {
         const SpotLight& light = std::get<SpotLight>(source);
-        Vector light_direction = (light.position - parameters.position);
-        float light_distance = glm::length(light_direction);
+
+        Point light_position = TransformPoint(light.position, parameters.scene_to_camera);
+        Vector light_direction = (light_position - parameters.position);
+
+        float distance = glm::length(light_direction);
         light_direction = glm::normalize(light_direction);
 
+        Vector beam_direction = TransformVector(light.direction, parameters.scene_to_camera);
+        beam_direction = glm::normalize(beam_direction);
+
         float distance_strength =
-            glm::pow(glm::max(-glm::dot(glm::normalize(light.direction), light_direction), 0.0f),
-                     light.exponent) /
-            (light.constant + light.linear * light_distance +
-             light.quadratic * light_distance * light_distance);
+            glm::pow(glm::max(-glm::dot(beam_direction, light_direction), 0.0f), light.exponent) *
+            DistantStrength(light, distance);
 
         float diff = glm::max(glm::dot(light_direction, parameters.normal), 0.0f);
         Vector view_direction = glm::normalize(-parameters.position);
@@ -282,27 +356,20 @@ Image Renderer::Render(const Scene& scene, const Scene::CameraId camera_id, Imag
                             scene.AccessCamera(camera_id).GetFovX());
         parameters_.light_begin = scene.LightBegin();
         parameters_.light_end = scene.LightEnd();
-        Matrix camera_view_matrix = scene.AccessCamera(camera_id).GetViewMatrix();
+        parameters_.scene_to_camera = scene.AccessCamera(camera_id).GetViewMatrix();
         const Object::FacetType* facets_storage = scene.AccessFacetsStorage();
         for (auto objects_it = scene.ObjectsBegin(); objects_it != scene.ObjectsEnd();
              ++objects_it) {
-            Matrix object_to_camera = camera_view_matrix * objects_it->GetObjectMatrix();
+            Matrix object_to_camera = parameters_.scene_to_camera * objects_it->GetObjectMatrix();
             Matrix3 normal_to_camera = glm::transpose(glm::inverse(Matrix3{object_to_camera}));
             for (size_t triangle_index = 0; triangle_index < objects_it->Size(); ++triangle_index) {
                 Triangle triangle = facets_storage[objects_it->Begin() + triangle_index];
                 // нормализуем координаты и переводим в координаты камеры
                 for (size_t i = 0; i < 3; ++i) {
-                    Point4 new_triangle_point{triangle.vertices[i].point, 1};
-                    new_triangle_point = object_to_camera * new_triangle_point;
-                    {
-                        assert((glm::epsilonNotEqual(new_triangle_point.w, 0.0f, kEpsilon)) and
-                               "Render: после умножения на матрицу перехода в пространство камеры "
-                               "координата w стала 0");
-                    }
-                    new_triangle_point /= new_triangle_point.w;
-                    triangle.vertices[i].point = new_triangle_point;
-                    triangle.vertices[i].normal =
-                        glm::normalize(normal_to_camera * triangle.vertices[i].normal);
+                    triangle.vertices[i].point =
+                        TransformPoint(triangle.vertices[i].point, object_to_camera);
+                    triangle.vertices[i].normal = glm::normalize(
+                        TransformVector(triangle.vertices[i].normal, normal_to_camera));
                 }
                 // находим нормаль к грани
                 Vector triangle_normal =
@@ -500,7 +567,7 @@ void Renderer::TriangleRasterizationTask(Image& image, const Triangle& triangle,
 
             // вычисление света
             if (flags_ & ENABLE_LIGHT) {
-                LightParameters light_parameters;
+                LightParameters light_parameters{.scene_to_camera = parameters_.scene_to_camera};
                 light_parameters.position =
                     (coefs[0] * triangle.vertices[0].point + coefs[1] * triangle.vertices[1].point +
                      coefs[2] * triangle.vertices[2].point) *

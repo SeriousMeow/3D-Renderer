@@ -145,6 +145,7 @@ private:
         Vector4 frustum_planes[5];
         Scene::LightConstIterator light_begin;
         Scene::LightConstIterator light_end;
+        Matrix scene_to_camera;
     };
 
     /**

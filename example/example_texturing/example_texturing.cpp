@@ -29,19 +29,20 @@ int main() {
 
     // Создаем источники света
     scene.PushLight(renderer::AmbientLight{});  // фоновый свет
+
     scene.PushLight(
         renderer::DirectionalLight{.strength = 0.3,
                                    .color = renderer::colors::kRed,
                                    .direction = {-1, -1, -1}});  // красный направленный свет
 
-    scene.PushLight(renderer::PointLight{.strength = 10.0,
+    scene.PushLight(renderer::PointLight{.strength = 5.0,
                                          .color = renderer::colors::kBlue,
                                          .position = {5, -2, 3}});  // синий точечный источник
 
     scene.PushLight(
-        renderer::SpotLight{.strength = 100.0,
+        renderer::SpotLight{.strength = 10.0,
                             .position = {4, -4, 3},
-                            .exponent = 10,
+                            .exponent = 1,
                             .direction = {-4, 4, -3}});  // точечный направленный источник
 
     // Создаем рендерер
