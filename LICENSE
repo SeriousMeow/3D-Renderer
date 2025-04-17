@@ -19,3 +19,27 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+Licenses for Third-Party Components
+
+This project includes:
+
+- OpenGL Mathematics (GLM), licensed under the Modified MIT License ("The Happy Bunny License").
+  See the file `GLM_LICENSE` for details.
+
+- Open Asset Import Library (Assimp), licensed under the 3-Clause BSD License.
+  Source available at: https://github.com/assimp/assimp
+  Full license text: https://github.com/assimp/assimp/blob/master/LICENSE
+
+  Note: Some 3D models in the Assimp repository (`test/models-nonbsd/`) are provided only for testing and may be under different licenses. They are **not redistributed with this project**.
+
+- Poly2Tri (used internally by Assimp), licensed under the 3-Clause BSD License.
+  License: https://github.com/assimp/assimp/blob/master/contrib/poly2tri/license.txt
+
+- stb single-file libraries (including stb_image.h), originally by Sean Barrett with contributions from others.
+  Source: https://github.com/nothings/stb
+  License: Public Domain or MIT (at your option)
+  Full list of contributors: https://github.com/nothings/stb/graphs/contributors
+  Note: Used in unmodified form from the stb library collection.

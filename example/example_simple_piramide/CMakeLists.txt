@@ -1,0 +1,1 @@
+add_example(example_simple_piramide)
